@@ -43,7 +43,7 @@
     "type": "git",
     "url": "git+https://github.com/pagopa/io-react-native-http-client.git"
   },
-  "author": "PagoPA SpA (https://github.com/pagopa) <js@gmail.com> (https://github.com/pagopa)",
+  "author": "PagoPA SpA (https://github.com/pagopa)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/pagopa/io-react-native-http-client/issues"
