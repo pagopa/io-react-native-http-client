@@ -17,6 +17,6 @@ const IoReactNativeHttpClient = NativeModules.IoReactNativeHttpClient
       }
     );
 
-export function multiply(a: number, b: number): Promise<number> {
-  return IoReactNativeHttpClient.multiply(a, b);
+export function multiply(a: string): Promise<string> {
+  return IoReactNativeHttpClient.multiply(a);
 }
