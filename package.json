@@ -99,7 +99,8 @@
   "release-it": {
     "git": {
       "commitMessage": "chore: release ${version}",
-      "tagName": "v${version}"
+      "tagName": "v${version}",
+      "changelog": "yarn auto-changelog --stdout --commit-limit false -u --template https://raw.githubusercontent.com/release-it/release-it/master/templates/changelog-compact.hbs"
     },
     "npm": {
       "publish": false
@@ -156,5 +157,8 @@
         }
       ]
     ]
+  },
+  "dependencies": {
+    "auto-changelog": "^2.4.0"
   }
 }
