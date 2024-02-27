@@ -102,17 +102,16 @@
       "tagName": "v${version}",
       "changelog": "yarn auto-changelog --stdout --commit-limit false -u --template https://raw.githubusercontent.com/release-it/release-it/master/templates/changelog-compact.hbs"
     },
+    "hooks": {
+      "after:bump": "yarn auto-changelog -p && git add ."
+    },
     "npm": {
       "publish": false
     },
     "github": {
       "release": true
     },
-    "plugins": {
-      "@release-it/conventional-changelog": {
-        "preset": "angular"
-      }
-    }
+    "plugins": {}
   },
   "eslintConfig": {
     "root": true,
