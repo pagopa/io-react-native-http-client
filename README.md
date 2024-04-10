@@ -11,11 +11,11 @@ npm install @pagopa/io-react-native-http-client
 ## Usage
 
 ```js
-import { multiply } from '@pagopa/io-react-native-http-client';
+import { standardRequest } from '@pagopa/io-react-native-http-client';
 
 // ...
 
-const result = await multiply(3, 7);
+const result = await standardRequest('https://www.google.com');
 ```
 
 ## Contributing

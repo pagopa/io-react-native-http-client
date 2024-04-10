@@ -17,6 +17,12 @@ const IoReactNativeHttpClient = NativeModules.IoReactNativeHttpClient
       }
     );
 
-export function multiply(a: string): Promise<string> {
-  return IoReactNativeHttpClient.multiply(a);
+export type HttpClientResponse = { status: number; body: string } | undefined;
+
+export function nativeClientRequest(url: string): Promise<HttpClientResponse> {
+  return IoReactNativeHttpClient.standardRequest(url);
+}
+
+export function fooBar(a: number): Promise<number> {
+  return IoReactNativeHttpClient.fooBar(a);
 }

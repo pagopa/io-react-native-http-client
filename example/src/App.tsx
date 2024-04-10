@@ -1,18 +1,28 @@
 import * as React from 'react';
 
 import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from '@pagopa/io-react-native-http-client';
+import {
+  fooBar,
+  nativeClientRequest,
+  type HttpClientResponse,
+} from '@pagopa/io-react-native-http-client';
 
 export default function App() {
-  const [result, setResult] = React.useState<string | undefined>();
+  const [result, setResult] = React.useState<HttpClientResponse | undefined>();
 
   React.useEffect(() => {
-    multiply('https://httpbin.org/get').then(setResult);
+    nativeClientRequest('https://google.com').then((res) => {
+      setResult(res);
+      console.log('result is', res);
+    });
   }, []);
+
+  console.log('in app.tsx');
+  fooBar(123).then((res) => console.log('foo is:', res));
 
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Text>Result: {JSON.stringify(result)}</Text>
     </View>
   );
 }
