@@ -71,9 +71,9 @@ PODS:
     - FlipperKit/FlipperKitNetworkPlugin
   - fmt (6.2.1)
   - glog (0.3.5)
-  - hermes-engine (0.72.10):
-    - hermes-engine/Pre-built (= 0.72.10)
-  - hermes-engine/Pre-built (0.72.10)
+  - hermes-engine (0.72.12):
+    - hermes-engine/Pre-built (= 0.72.12)
+  - hermes-engine/Pre-built (0.72.12)
   - libevent (2.1.12)
   - OpenSSL-Universal (1.1.1100)
   - pagopa-io-react-native-http-client (0.1.3):
@@ -678,7 +678,7 @@ SPEC CHECKSUMS:
   FlipperKit: 2efad7007d6745a3f95e4034d547be637f89d3f6
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
-  hermes-engine: 90e4033deb00bee33330a9f15eff0f874bd82f6d
+  hermes-engine: e89344b9e9e54351c3c5cac075e0275148fb37ba
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   pagopa-io-react-native-http-client: e58a8393c5e73eeed185560b5a981898906dd232

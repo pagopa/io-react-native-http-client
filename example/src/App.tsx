@@ -11,10 +11,15 @@ export default function App() {
   const [result, setResult] = React.useState<HttpClientResponse | undefined>();
 
   React.useEffect(() => {
-    nativeClientRequest('https://google.com').then((res) => {
-      setResult(res);
-      console.log('result is', res);
-    });
+    console.log('making call');
+    nativeClientRequest('http://localhost:3000/ping')
+      .then((res) => {
+        setResult(res);
+        console.log('result is', res);
+      })
+      .catch((err) => {
+        console.log('error is :', JSON.stringify(err));
+      });
   }, []);
 
   console.log('in app.tsx');

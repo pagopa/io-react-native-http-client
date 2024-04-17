@@ -1,10 +1,12 @@
 package com.pagopa.ioreactnativehttpclient
 
 import android.util.Log
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
+import com.facebook.react.bridge.ReadableMap
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -22,29 +24,38 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
   // Example method
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
-  fun standardRequest(a: String, promise: Promise) {
+  fun httpClientRequest(url: String, promise: Promise) {
     var client = OkHttpClient()
     val request: Request = Request.Builder()
-      .url(a)
+      .url(url)
       .build()
     client.newCall(request).enqueue(
       object : Callback {
         override fun onResponse(call: Call, response: Response) {
-              if (response.isSuccessful) {
-              Log.e("verylongstring", "log in res")
-              promise.resolve(response.body!!.string())
-            } else {
-              promise.resolve("Error")
+          var fullResponse= Arguments.createMap()
+
+          fullResponse.putInt("status",response.code)
+
+          response.body?.let {
+            try {
+              fullResponse.putString("body", it.string())
+            }catch (e:IOException) {
+              promise.reject("internal error", "failed to deserialize body ")
+              return
             }
           }
 
-        override fun onFailure(call: Call, e: IOException) {
+          promise.resolve(fullResponse)
+          return
+          }
 
+        override fun onFailure(call: Call, e: IOException) {
+          promise.reject("code",e.message)
+          return
         }
       }
 
     )
-    Log.e("verylongstring", "hehe debug log")
 
   }
   @ReactMethod

@@ -2,7 +2,7 @@
 
 @interface RCT_EXTERN_MODULE(IoReactNativeHttpClient, NSObject)
 
-RCT_EXTERN_METHOD(standardRequest(NSString *)a
+RCT_EXTERN_METHOD(httpClientRequest:(NSString *)a
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(fooBar:(NSInteger)a

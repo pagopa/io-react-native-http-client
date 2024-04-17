@@ -20,7 +20,7 @@ const IoReactNativeHttpClient = NativeModules.IoReactNativeHttpClient
 export type HttpClientResponse = { status: number; body: string } | undefined;
 
 export function nativeClientRequest(url: string): Promise<HttpClientResponse> {
-  return IoReactNativeHttpClient.standardRequest(url);
+  return IoReactNativeHttpClient.httpClientRequest(url);
 }
 
 export function fooBar(a: number): Promise<number> {
