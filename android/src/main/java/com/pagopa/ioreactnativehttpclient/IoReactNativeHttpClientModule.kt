@@ -24,17 +24,31 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
   // Example method
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
-  fun httpClientRequest(url: String, promise: Promise) {
+  fun httpClientRequest(url: String, headers:ReadableMap?, promise: Promise ) {
     var client = OkHttpClient()
-    val request: Request = Request.Builder()
+    val request = Request.Builder()
       .url(url)
-      .build()
-    client.newCall(request).enqueue(
+
+    headers?.let {
+      for (entry in it.entryIterator) {
+        request.header(entry.key, entry.value.toString())
+      }
+    }
+
+    client.newCall(request.build()).enqueue(
       object : Callback {
         override fun onResponse(call: Call, response: Response) {
           var fullResponse= Arguments.createMap()
 
           fullResponse.putInt("status",response.code)
+
+          var headersMap=Arguments.createMap()
+          for (entry in response.headers){
+            headersMap.putString(
+              entry.first,entry.second
+            )
+          }
+          fullResponse.putMap("headers",headersMap)
 
           response.body?.let {
             try {
