@@ -4,6 +4,8 @@
 
 RCT_EXTERN_METHOD(
                  httpClientRequest:(NSString *)url
+                 isPost:(BOOL)isPost
+                 withFormEncodedParams:(NSDictionary *) formEncodedParams
                  withHeaders:(NSDictionary *)headers
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)

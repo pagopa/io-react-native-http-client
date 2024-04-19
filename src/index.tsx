@@ -23,9 +23,16 @@ export type HttpClientResponse =
 
 export function nativeClientRequest(
   url: string,
+  isPost: boolean = false,
+  postParams?: Record<string, string>,
   headers?: Record<string, string>
 ): Promise<HttpClientResponse> {
-  return IoReactNativeHttpClient.httpClientRequest(url, headers);
+  return IoReactNativeHttpClient.httpClientRequest(
+    url,
+    isPost,
+    postParams,
+    headers
+  );
 }
 
 export function fooBar(a: number): Promise<number> {

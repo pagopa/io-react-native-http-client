@@ -4,12 +4,20 @@ import Alamofire
 @objc(IoReactNativeHttpClient)
 class IoReactNativeHttpClient: NSObject {
 
-    @objc(httpClientRequest:withHeaders:withResolver:withRejecter:)
-    func httpClientRequest(url: String, headers:[String:String]?,  resolve: @escaping RCTPromiseResolveBlock,reject: @escaping RCTPromiseRejectBlock) -> Void {
+    @objc(httpClientRequest:isPost:withFormEncodedParams:withHeaders:withResolver:withRejecter:)
+    func httpClientRequest(url: String,isPost:Bool,formEncodedParams:[String:String]?, headers:[String:String]?,  resolve: @escaping RCTPromiseResolveBlock,reject: @escaping RCTPromiseRejectBlock) -> Void {
 
+        // request building
+        
         let formedHeaders = HTTPHeaders(headers ?? [:])
-
-        AF.request(url,headers: formedHeaders).responseData { response in
+        
+        // post preparation shenanigans
+        let (httpMethod,httpPostParams) = isPost ?  (HTTPMethod.post,(formEncodedParams ?? [:] )) : (HTTPMethod.get,nil)
+        
+        
+        // response handling
+        
+        AF.request(url, method:httpMethod, parameters:httpPostParams, headers: formedHeaders).responseData { response in
 
             if let statusCode = response.response?.statusCode{
 
@@ -29,6 +37,8 @@ class IoReactNativeHttpClient: NSObject {
                 }
 
                 resolve(formedResponse)
+                
+            // fail when making the call
             }else if let error = response.error {
                 reject( "error", error.errorDescription, error )
             } else{

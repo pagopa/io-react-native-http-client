@@ -13,7 +13,12 @@ export default function App() {
   React.useEffect(() => {
     console.log('making call');
     nativeClientRequest(
-      'http://localhost:3000/ping'
+      'http://localhost:3000/ping',
+      true,
+      {
+        key1: 'testing',
+        key2: 'testing2',
+      }
 
       // {
       //   key1: 'testing',
