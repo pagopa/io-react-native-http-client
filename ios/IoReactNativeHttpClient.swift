@@ -4,10 +4,17 @@ import Alamofire
 @objc(IoReactNativeHttpClient)
 class IoReactNativeHttpClient: NSObject {
 
-    @objc(httpClientRequest:isPost:withFormEncodedParams:withHeaders:withResolver:withRejecter:)
-    func httpClientRequest(url: String,isPost:Bool,formEncodedParams:[String:String]?, headers:[String:String]?,  resolve: @escaping RCTPromiseResolveBlock,reject: @escaping RCTPromiseRejectBlock) -> Void {
+    @objc(httpClientRequest:isPost:withFormEncodedParams:withHeaders:shouldFollowRedirects:withResolver:withRejecter:)
+    func httpClientRequest(url: String,isPost:Bool,formEncodedParams:[String:String]?, headers:[String:String]?,shouldFollowRedirects:Bool, resolve: @escaping RCTPromiseResolveBlock,reject: @escaping RCTPromiseRejectBlock) -> Void {
 
         // request building
+        
+        let redirector = Redirector(
+            behavior: shouldFollowRedirects ?
+                                    Redirector.Behavior.follow
+                                    :
+                                    Redirector.Behavior.doNotFollow
+        )
         
         let formedHeaders = HTTPHeaders(headers ?? [:])
         
@@ -17,7 +24,7 @@ class IoReactNativeHttpClient: NSObject {
         
         // response handling
         
-        AF.request(url, method:httpMethod, parameters:httpPostParams, headers: formedHeaders).responseData { response in
+        AF.request(url, method:httpMethod, parameters:httpPostParams, headers: formedHeaders).redirect(using: redirector).responseData { response in
 
             if let statusCode = response.response?.statusCode{
 

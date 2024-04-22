@@ -7,8 +7,10 @@ RCT_EXTERN_METHOD(
                  isPost:(BOOL)isPost
                  withFormEncodedParams:(NSDictionary *) formEncodedParams
                  withHeaders:(NSDictionary *)headers
+                 shouldFollowRedirects:(BOOL)shouldFollowRedirects
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(fooBar:(NSInteger)a
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)

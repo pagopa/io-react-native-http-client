@@ -26,8 +26,8 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
   // Example method
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
-  fun httpClientRequest(url: String, isPost:Boolean,formEncodedParams:ReadableMap?, headers:ReadableMap?, promise: Promise ) {
-    var client = OkHttpClient()
+  fun httpClientRequest(url: String, isPost:Boolean,formEncodedParams:ReadableMap?, headers:ReadableMap?, shouldFollowRedirects:Boolean?, promise: Promise ) {
+    var client = OkHttpClient.Builder().followRedirects(shouldFollowRedirects?: true).build()
     val requestBuilder = Request.Builder()
       .url(url)
 
@@ -46,6 +46,7 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
       }
       requestBuilder.post(formBuilder.build())
     }
+
 
 
     client.newCall(requestBuilder.build()).enqueue(

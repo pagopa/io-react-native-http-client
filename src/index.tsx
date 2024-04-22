@@ -25,13 +25,15 @@ export function nativeClientRequest(
   url: string,
   isPost: boolean = false,
   postParams?: Record<string, string>,
-  headers?: Record<string, string>
+  headers?: Record<string, string>,
+  shouldFollowRedirects?: boolean
 ): Promise<HttpClientResponse> {
   return IoReactNativeHttpClient.httpClientRequest(
     url,
     isPost,
     postParams,
-    headers
+    headers,
+    shouldFollowRedirects
   );
 }
 
