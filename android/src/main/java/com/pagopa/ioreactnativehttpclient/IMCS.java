@@ -1,5 +1,4 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
  * Copyright (c) 2005, 2012, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -26,10 +25,9 @@
 
 package com.pagopa.ioreactnativehttpclient;
 
-
+import java.net.URI;
 import java.net.CookieStore;
 import java.net.HttpCookie;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
@@ -39,54 +37,37 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.locks.ReentrantLock;
 
-// Android-changed: App compat changes and bug fixes.
-// b/26456024 Add targetSdkVersion based compatibility for domain matching
-// b/33034917 Support clearing cookies by adding it with "max-age=0"
-// b/25897688 InMemoryCookieStore ignores scheme (http/https) port and path of the cookie
-// Remove cookieJar and domainIndex. Use urlIndex as single Cookie storage
-// Fix InMemoryCookieStore#remove to verify cookie URI before removal
-// Fix InMemoryCookieStore#removeAll to return false if it's empty.
 /**
  * A simple in-memory java.net.CookieStore implementation
  *
  * @author Edward Wang
  * @since 1.6
- * @hide Visible for testing only.
  */
-public class InMemoryCookieStore implements CookieStore {
+class IMCS implements CookieStore {
   // the in-memory representation of cookies
-  // BEGIN Android-removed: Remove cookieJar and domainIndex.
-    /*
-    private List<HttpCookie> cookieJar = null;
+  private List<HttpCookie> cookieJar = null;
 
-    // the cookies are indexed by its domain and associated uri (if present)
-    // CAUTION: when a cookie removed from main data structure (i.e. cookieJar),
-    //          it won't be cleared in domainIndex & uriIndex. Double-check the
-    //          presence of cookie when retrieve one form index store.
-    private Map<String, List<HttpCookie>> domainIndex = null;
-    */
-  // END Android-removed: Remove cookieJar and domainIndex.
+  // the cookies are indexed by its domain and associated uri (if present)
+  // CAUTION: when a cookie removed from main data structure (i.e. cookieJar),
+  //          it won't be cleared in domainIndex & uriIndex. Double-check the
+  //          presence of cookie when retrieve one form index store.
+  private Map<String, List<HttpCookie>> domainIndex = null;
   private Map<URI, List<HttpCookie>> uriIndex = null;
 
-  // use ReentrantLock instead of syncronized for scalability
+  // use ReentrantLock instead of synchronized for scalability
   private ReentrantLock lock = null;
 
-  // BEGIN Android-changed: Add targetSdkVersion and remove cookieJar and domainIndex.
-  private final boolean applyMCompatibility;
 
   /**
    * The default ctor
    */
-  public InMemoryCookieStore() {
-    this(24);
-  }
-
-  public InMemoryCookieStore(int targetSdkVersion) {
+  public IMCS() {
+    cookieJar = new ArrayList<>();
+    domainIndex = new HashMap<>();
     uriIndex = new HashMap<>();
+
     lock = new ReentrantLock(false);
-    applyMCompatibility = (targetSdkVersion <= 23);
   }
-  // END Android-changed: Add targetSdkVersion and remove cookieJar and domainIndex.
 
   /**
    * Add one cookie into cookie store.
@@ -97,13 +78,24 @@ public class InMemoryCookieStore implements CookieStore {
       throw new NullPointerException("cookie is null");
     }
 
+
     lock.lock();
     try {
-      // Android-changed: Android supports clearing cookies. http://b/33034917
-      // They are cleared by adding the cookie with max-age: 0.
-      //if (cookie.getMaxAge() != 0) {
-      addIndex(uriIndex, getEffectiveURI(uri), cookie);
-      //}
+      // remove the ole cookie if there has had one
+      cookieJar.remove(cookie);
+
+      // add new cookie if it has a non-zero max-age
+      if (cookie.getMaxAge() != 0) {
+        cookieJar.add(cookie);
+        // and add it to domain index
+        if (cookie.getDomain() != null) {
+          addIndex(domainIndex, cookie.getDomain(), cookie);
+        }
+        if (uri != null) {
+          // add it to uri index, too
+          addIndex(uriIndex, getEffectiveURI(uri), cookie);
+        }
+      }
     } finally {
       lock.unlock();
     }
@@ -123,18 +115,18 @@ public class InMemoryCookieStore implements CookieStore {
       throw new NullPointerException("uri is null");
     }
 
-    List<HttpCookie> cookies = new ArrayList<HttpCookie>();
-    // BEGIN Android-changed: InMemoryCookieStore ignores scheme (http/https). b/25897688
+    List<HttpCookie> cookies = new ArrayList<>();
+    boolean secureLink = "https".equalsIgnoreCase(uri.getScheme());
     lock.lock();
     try {
       // check domainIndex first
-      getInternal1(cookies, uriIndex, uri.getHost());
+      getInternal1(cookies, domainIndex, uri.getHost(), secureLink);
       // check uriIndex then
-      getInternal2(cookies, uriIndex, getEffectiveURI(uri));
+      getInternal2(cookies, uriIndex, getEffectiveURI(uri), secureLink);
     } finally {
       lock.unlock();
     }
-    // END Android-changed: InMemoryCookieStore ignores scheme (http/https). b/25897688
+
     return cookies;
   }
 
@@ -142,27 +134,20 @@ public class InMemoryCookieStore implements CookieStore {
    * Get all cookies in cookie store, except those have expired
    */
   public List<HttpCookie> getCookies() {
-    // BEGIN Android-changed: Remove cookieJar and domainIndex.
-    List<HttpCookie> rt = new ArrayList<HttpCookie>();
+    List<HttpCookie> rt;
 
     lock.lock();
     try {
-      for (List<HttpCookie> list : uriIndex.values()) {
-        Iterator<HttpCookie> it = list.iterator();
-        while (it.hasNext()) {
-          HttpCookie cookie = it.next();
-          if (cookie.hasExpired()) {
-            it.remove();
-          } else if (!rt.contains(cookie)) {
-            rt.add(cookie);
-          }
+      Iterator<HttpCookie> it = cookieJar.iterator();
+      while (it.hasNext()) {
+        if (it.next().hasExpired()) {
+          it.remove();
         }
       }
     } finally {
-      rt = Collections.unmodifiableList(rt);
+      rt = Collections.unmodifiableList(cookieJar);
       lock.unlock();
     }
-    // END Android-changed: Remove cookieJar and domainIndex.
 
     return rt;
   }
@@ -172,38 +157,26 @@ public class InMemoryCookieStore implements CookieStore {
    * of this cookie store.
    */
   public List<URI> getURIs() {
-    // BEGIN Android-changed: App compat. Return URI with no cookies. http://b/65538736
-        /*
-        List<URI> uris = new ArrayList<>();
+    List<URI> uris = new ArrayList<>();
 
-        lock.lock();
-        try {
-            Iterator<URI> it = uriIndex.keySet().iterator();
-            while (it.hasNext()) {
-                URI uri = it.next();
-                List<HttpCookie> cookies = uriIndex.get(uri);
-                if (cookies == null || cookies.size() == 0) {
-                    // no cookies list or an empty list associated with
-                    // this uri entry, delete it
-                    it.remove();
-                }
-            }
-        } finally {
-            uris.addAll(uriIndex.keySet());
-            lock.unlock();
-        }
-
-        return uris;
-         */
     lock.lock();
     try {
-      List<URI> result = new ArrayList<URI>(uriIndex.keySet());
-      result.remove(null);
-      return Collections.unmodifiableList(result);
+      Iterator<URI> it = uriIndex.keySet().iterator();
+      while (it.hasNext()) {
+        URI uri = it.next();
+        List<HttpCookie> cookies = uriIndex.get(uri);
+        if (cookies == null || cookies.size() == 0) {
+          // no cookies list or an empty list associated with
+          // this uri entry, delete it
+          it.remove();
+        }
+      }
     } finally {
+      uris.addAll(uriIndex.keySet());
       lock.unlock();
     }
-    // END Android-changed: App compat. Return URI with no cookies. http://b/65538736
+
+    return uris;
   }
 
 
@@ -216,24 +189,15 @@ public class InMemoryCookieStore implements CookieStore {
       throw new NullPointerException("cookie is null");
     }
 
-    // BEGIN Android-changed: Fix uri not being removed from uriIndex.
+    boolean modified = false;
     lock.lock();
     try {
-      uri = getEffectiveURI(uri);
-      if (uriIndex.get(uri) == null) {
-        return false;
-      } else {
-        List<HttpCookie> cookies = uriIndex.get(uri);
-        if (cookies != null) {
-          return cookies.remove(ck);
-        } else {
-          return false;
-        }
-      }
+      modified = cookieJar.remove(ck);
     } finally {
       lock.unlock();
     }
-    // END Android-changed: Fix uri not being removed from uriIndex.
+
+    return modified;
   }
 
 
@@ -242,18 +206,18 @@ public class InMemoryCookieStore implements CookieStore {
    */
   public boolean removeAll() {
     lock.lock();
-    // BEGIN Android-changed: Let removeAll() return false when there are no cookies.
-    boolean result = false;
-
     try {
-      result = !uriIndex.isEmpty();
+      if (cookieJar.isEmpty()) {
+        return false;
+      }
+      cookieJar.clear();
+      domainIndex.clear();
       uriIndex.clear();
     } finally {
       lock.unlock();
     }
 
-    return result;
-    // END Android-changed: Let removeAll() return false when there are no cookies.
+    return true;
   }
 
 
@@ -296,19 +260,12 @@ public class InMemoryCookieStore implements CookieStore {
     int domainLength = domain.length();
     int lengthDiff = host.length() - domainLength;
     if (lengthDiff == 0) {
-      // if the host name and the domain name are just string-compare euqal
+      // if the host name and the domain name are just string-compare equal
       return host.equalsIgnoreCase(domain);
     } else if (lengthDiff > 0) {
       // need to check H & D component
+      String H = host.substring(0, lengthDiff);
       String D = host.substring(lengthDiff);
-
-      // Android-changed: b/26456024 targetSdkVersion based compatibility for domain matching.
-      // Android M and earlier: Cookies with domain "foo.com" would not match "bar.foo.com".
-      // The RFC dictates that the user agent must treat those domains as if they had a
-      // leading period and must therefore match "bar.foo.com".
-      if (applyMCompatibility && !domain.startsWith(".")) {
-        return false;
-      }
 
       return (D.equalsIgnoreCase(domain));
     } else if (lengthDiff == -1) {
@@ -320,26 +277,32 @@ public class InMemoryCookieStore implements CookieStore {
     return false;
   }
 
-  private void getInternal1(List<HttpCookie> cookies, Map<URI, List<HttpCookie>> cookieIndex,
-                            String host) {
-    // BEGIN Android-changed: InMemoryCookieStore ignores scheme (http/https). b/25897688
+  private void getInternal1(List<HttpCookie> cookies, Map<String, List<HttpCookie>> cookieIndex,
+                            String host, boolean secureLink) {
     // Use a separate list to handle cookies that need to be removed so
     // that there is no conflict with iterators.
-    ArrayList<HttpCookie> toRemove = new ArrayList<HttpCookie>();
-    for (Map.Entry<URI, List<HttpCookie>> entry : cookieIndex.entrySet()) {
+    ArrayList<HttpCookie> toRemove = new ArrayList<>();
+    for (Map.Entry<String, List<HttpCookie>> entry : cookieIndex.entrySet()) {
+      String domain = entry.getKey();
       List<HttpCookie> lst = entry.getValue();
       for (HttpCookie c : lst) {
-        String domain = c.getDomain();
         if ((c.getVersion() == 0 && netscapeDomainMatches(domain, host)) ||
           (c.getVersion() == 1 && HttpCookie.domainMatches(domain, host))) {
-
-          // the cookie still in main cookie store
-          if (!c.hasExpired()) {
-            // don't add twice
-            if (!cookies.contains(c)) {
-              cookies.add(c);
+          if ((cookieJar.indexOf(c) != -1)) {
+            // the cookie still in main cookie store
+            if (!c.hasExpired()) {
+              // don't add twice and make sure it's the proper
+              // security level
+              if ((secureLink || !c.getSecure()) &&
+                !cookies.contains(c)) {
+                cookies.add(c);
+              }
+            } else {
+              toRemove.add(c);
             }
           } else {
+            // the cookie has been removed from main store,
+            // so also remove it from domain indexed store
             toRemove.add(c);
           }
         }
@@ -347,44 +310,49 @@ public class InMemoryCookieStore implements CookieStore {
       // Clear up the cookies that need to be removed
       for (HttpCookie c : toRemove) {
         lst.remove(c);
+        cookieJar.remove(c);
 
       }
       toRemove.clear();
     }
-    // END Android-changed: InMemoryCookieStore ignores scheme (http/https). b/25897688
   }
 
   // @param cookies           [OUT] contains the found cookies
   // @param cookieIndex       the index
   // @param comparator        the prediction to decide whether or not
   //                          a cookie in index should be returned
-  private <T extends Comparable<T>>
-  void getInternal2(List<HttpCookie> cookies, Map<T, List<HttpCookie>> cookieIndex,
-                    T comparator)
+  private <T> void getInternal2(List<HttpCookie> cookies,
+                                Map<T, List<HttpCookie>> cookieIndex,
+                                Comparable<T> comparator, boolean secureLink)
   {
-    // BEGIN Android-changed: InMemoryCookieStore ignores scheme (http/https). b/25897688
-    // Removed cookieJar
     for (T index : cookieIndex.keySet()) {
-      if ((index == comparator) || (index != null && comparator.compareTo(index) == 0)) {
+      if (comparator.compareTo(index) == 0) {
         List<HttpCookie> indexedCookies = cookieIndex.get(index);
         // check the list of cookies associated with this domain
         if (indexedCookies != null) {
           Iterator<HttpCookie> it = indexedCookies.iterator();
           while (it.hasNext()) {
             HttpCookie ck = it.next();
-            // the cookie still in main cookie store
-            if (!ck.hasExpired()) {
-              // don't add twice
-              if (!cookies.contains(ck))
-                cookies.add(ck);
+            if (cookieJar.indexOf(ck) != -1) {
+              // the cookie still in main cookie store
+              if (!ck.hasExpired()) {
+                // don't add twice
+                if ((secureLink || !ck.getSecure()) &&
+                  !cookies.contains(ck))
+                  cookies.add(ck);
+              } else {
+                it.remove();
+                cookieJar.remove(ck);
+              }
             } else {
+              // the cookie has been removed from main store,
+              // so also remove it from domain indexed store
               it.remove();
             }
           }
         } // end of indexedCookies != null
       } // end of comparator.compareTo(index) == 0
     } // end of cookieIndex iteration
-    // END Android-changed: InMemoryCookieStore ignores scheme (http/https). b/25897688
   }
 
   // add 'cookie' indexed by 'index' into 'indexStore'
@@ -392,20 +360,18 @@ public class InMemoryCookieStore implements CookieStore {
                             T index,
                             HttpCookie cookie)
   {
-    // Android-changed: "index" can be null.
-    // We only use the URI based index on Android and we want to support null URIs. The
-    // underlying store is a HashMap which will support null keys anyway.
-    // if (index != null) {
-    List<HttpCookie> cookies = indexStore.get(index);
-    if (cookies != null) {
-      // there may already have the same cookie, so remove it first
-      cookies.remove(cookie);
+    if (index != null) {
+      List<HttpCookie> cookies = indexStore.get(index);
+      if (cookies != null) {
+        // there may already have the same cookie, so remove it first
+        cookies.remove(cookie);
 
-      cookies.add(cookie);
-    } else {
-      cookies = new ArrayList<>();
-      cookies.add(cookie);
-      indexStore.put(index, cookies);
+        cookies.add(cookie);
+      } else {
+        cookies = new ArrayList<>();
+        cookies.add(cookie);
+        indexStore.put(index, cookies);
+      }
     }
   }
 
@@ -416,10 +382,6 @@ public class InMemoryCookieStore implements CookieStore {
   //
   private URI getEffectiveURI(URI uri) {
     URI effectiveURI = null;
-    // Android-added: Fix NullPointerException.
-    if (uri == null) {
-      return null;
-    }
     try {
       effectiveURI = new URI("http",
         uri.getHost(),

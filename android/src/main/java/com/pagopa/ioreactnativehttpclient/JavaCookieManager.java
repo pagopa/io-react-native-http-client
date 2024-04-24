@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
- * Copyright (c) 2005, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -31,13 +30,95 @@ import java.net.CookiePolicy;
 import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.URI;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.List;
-import java.util.Collections;
+import java.util.Comparator;
 import java.io.IOException;
 
-public class BananaJoe extends CookieHandler
+/**
+ * CookieManager provides a concrete implementation of {@link CookieHandler},
+ * which separates the storage of cookies from the policy surrounding accepting
+ * and rejecting cookies. A CookieManager is initialized with a {@link CookieStore}
+ * which manages storage, and a {@link CookiePolicy} object, which makes
+ * policy decisions on cookie acceptance/rejection.
+ *
+ * <p> The HTTP cookie management in java.net package looks like:
+ * <blockquote>
+ * <pre>{@code
+ *                  use
+ * CookieHandler <------- HttpURLConnection
+ *       ^
+ *       | impl
+ *       |         use
+ * CookieManager -------> CookiePolicy
+ *             |   use
+ *             |--------> HttpCookie
+ *             |              ^
+ *             |              | use
+ *             |   use        |
+ *             |--------> CookieStore
+ *                            ^
+ *                            | impl
+ *                            |
+ *                  Internal in-memory implementation
+ * }</pre>
+ * <ul>
+ *   <li>
+ *     CookieHandler is at the core of cookie management. User can call
+ *     CookieHandler.setDefault to set a concrete CookieHandler implementation
+ *     to be used.
+ *   </li>
+ *   <li>
+ *     CookiePolicy.shouldAccept will be called by CookieManager.put to see whether
+ *     or not one cookie should be accepted and put into cookie store. User can use
+ *     any of three pre-defined CookiePolicy, namely ACCEPT_ALL, ACCEPT_NONE and
+ *     ACCEPT_ORIGINAL_SERVER, or user can define his own CookiePolicy implementation
+ *     and tell CookieManager to use it.
+ *   </li>
+ *   <li>
+ *     CookieStore is the place where any accepted HTTP cookie is stored in.
+ *     If not specified when created, a CookieManager instance will use an internal
+ *     in-memory implementation. Or user can implements one and tell CookieManager
+ *     to use it.
+ *   </li>
+ *   <li>
+ *     Currently, only CookieStore.add(URI, HttpCookie) and CookieStore.get(URI)
+ *     are used by CookieManager. Others are for completeness and might be needed
+ *     by a more sophisticated CookieStore implementation, e.g. a NetscapeCookieStore.
+ *   </li>
+ * </ul>
+ * </blockquote>
+ *
+ * <p>There're various ways user can hook up his own HTTP cookie management behavior, e.g.
+ * <blockquote>
+ * <ul>
+ *   <li>Use CookieHandler.setDefault to set a brand new {@link CookieHandler} implementation
+ *   <li>Let CookieManager be the default {@link CookieHandler} implementation,
+ *       but implement user's own {@link CookieStore} and {@link CookiePolicy}
+ *       and tell default CookieManager to use them:
+ *     <blockquote><pre>
+ *       // this should be done at the beginning of an HTTP session
+ *       CookieHandler.setDefault(new CookieManager(new MyCookieStore(), new MyCookiePolicy()));
+ *     </pre></blockquote>
+ *   <li>Let CookieManager be the default {@link CookieHandler} implementation, but
+ *       use customized {@link CookiePolicy}:
+ *     <blockquote><pre>
+ *       // this should be done at the beginning of an HTTP session
+ *       CookieHandler.setDefault(new CookieManager());
+ *       // this can be done at any point of an HTTP session
+ *       ((CookieManager)CookieHandler.getDefault()).setCookiePolicy(new MyCookiePolicy());
+ *     </pre></blockquote>
+ * </ul>
+ * </blockquote>
+ *
+ * <p>The implementation conforms to <a href="http://www.ietf.org/rfc/rfc2965.txt">RFC 2965</a>, section 3.3.
+ *
+ * @spec https://www.rfc-editor.org/info/rfc2965 RFC 2965: HTTP State Management Mechanism
+ * @see CookiePolicy
+ * @author Edward Wang
+ * @since 1.6
+ */
+public class JavaCookieManager extends CookieHandler
 {
   /* ---------------- Fields -------------- */
 
@@ -56,7 +137,7 @@ public class BananaJoe extends CookieHandler
    * cookie store and accept policy. The effect is same as
    * {@code CookieManager(null, null)}.
    */
-  public BananaJoe() {
+  public JavaCookieManager() {
     this(null, null);
   }
 
@@ -72,8 +153,8 @@ public class BananaJoe extends CookieHandler
    *                          if {@code null}, ACCEPT_ORIGINAL_SERVER will
    *                          be used.
    */
-  public BananaJoe(CookieStore store,
-                       CookiePolicy cookiePolicy)
+  public JavaCookieManager(CookieStore store,
+                           CookiePolicy cookiePolicy)
   {
     // use default cookie policy if not specify one
     policyCallback = (cookiePolicy == null) ? CookiePolicy.ACCEPT_ORIGINAL_SERVER
@@ -81,7 +162,7 @@ public class BananaJoe extends CookieHandler
 
     // if not specify CookieStore to use, use default one
     if (store == null) {
-      cookieJar = new InMemoryCookieStore();
+      cookieJar = new IMCS();
     } else {
       cookieJar = store;
     }
@@ -93,7 +174,7 @@ public class BananaJoe extends CookieHandler
   /**
    * To set the cookie policy of this cookie manager.
    *
-   * <p> A instance of {@code CookieManager} will have
+   * <p> An instance of {@code CookieManager} will have
    * cookie policy ACCEPT_ORIGINAL_SERVER by default. Users always
    * can call this method to set another cookie policy.
    *
@@ -130,31 +211,23 @@ public class BananaJoe extends CookieHandler
 
     boolean secureLink = "https".equalsIgnoreCase(uri.getScheme());
     List<HttpCookie> cookies = new java.util.ArrayList<>();
-    // BEGIN Android-removed: The logic of converting null path is moved into pathMatches.
-        /*
-        String path = uri.getPath();
-        if (path == null || path.isEmpty()) {
-            path = "/";
-        }
-        */
-    // END Android-removed: The logic of converting null path is moved into pathMatches.
+    String path = uri.getPath();
+    if (path == null || path.isEmpty()) {
+      path = "/";
+    }
     for (HttpCookie cookie : cookieJar.get(uri)) {
       // apply path-matches rule (RFC 2965 sec. 3.3.4)
       // and check for the possible "secure" tag (i.e. don't send
       // 'secure' cookies over unsecure links)
-      if (pathMatches(uri, cookie) &&
+      if (pathMatches(path, cookie.getPath()) &&
         (secureLink || !cookie.getSecure())) {
-        // BEGIN Android-removed: App compat: b/25897688 InMemoryCookieStore ignores scheme.
-                /*
-                if (cookie.isHttpOnly()) {
-                    String s = uri.getScheme();
-                    if (!"http".equalsIgnoreCase(s) && !"https".equalsIgnoreCase(s)) {
-                        continue;
-                    }
-                }
-                */
-        // END Android-removed: App compat: b/25897688 InMemoryCookieStore ignores scheme.
-
+        // Enforce httponly attribute
+        if (cookie.isHttpOnly()) {
+          String s = uri.getScheme();
+          if (!"http".equalsIgnoreCase(s) && !"https".equalsIgnoreCase(s)) {
+            continue;
+          }
+        }
         // Let's check the authorize port list if it exists
         String ports = cookie.getPortlist();
         if (ports != null && !ports.isEmpty()) {
@@ -162,21 +235,17 @@ public class BananaJoe extends CookieHandler
           if (port == -1) {
             port = "https".equals(uri.getScheme()) ? 443 : 80;
           }
-          if (isInPortList(ports, port)) {
+          if (isInPortList(ports, port) && !cookie.hasExpired()) {
             cookies.add(cookie);
           }
-        } else {
+        } else if (!cookie.hasExpired()) {
           cookies.add(cookie);
         }
       }
     }
-    // Android-added: A fix to return empty map if cookies list is empty. b/25897688
-    if (cookies.isEmpty()) {
-      return Collections.emptyMap();
-    }
 
     // apply sort rule (RFC 2965 sec. 3.3.4)
-    List<String> cookieHeader = sortByPath(cookies);
+    List<String> cookieHeader = sortByPathAndAge(cookies);
 
     return Map.of("Cookie", cookieHeader);
   }
@@ -230,12 +299,6 @@ public class BananaJoe extends CookieHandler
                 }
               }
               cookie.setPath(path);
-              // Android-added: A fix to verify cookie URI before removal. b/25763487
-            } else {
-              // Validate existing path
-              if (!pathMatches(uri, cookie)) {
-//                continue;
-              }
             }
 
             // As per RFC 2965, section 3.3.1:
@@ -290,10 +353,8 @@ public class BananaJoe extends CookieHandler
   // to determine whether or not accept this cookie
   private boolean shouldAcceptInternal(URI uri, HttpCookie cookie) {
     try {
-      boolean testing= policyCallback.shouldAccept(uri, cookie);
-      return testing;
-
-    } catch (Exception ignored) { // pretect against malicious callback
+      return policyCallback.shouldAccept(uri, cookie);
+    } catch (Exception ignored) { // protect against malicious callback
       return false;
     }
   }
@@ -304,7 +365,7 @@ public class BananaJoe extends CookieHandler
     int val = -1;
     while (i > 0) {
       try {
-        val = Integer.parseInt(lst.substring(0, i));
+        val = Integer.parseInt(lst, 0, i, 10);
         if (val == port) {
           return true;
         }
@@ -325,84 +386,66 @@ public class BananaJoe extends CookieHandler
     return false;
   }
 
-  // Android-changed: Cookie path matching logic in OpenJDK was wrong. b/25763487
-  /**
-   * Return true iff. the path from {@code cookie} matches the path from {@code uri}.
+  /*
+   * path-matches algorithm, as defined by RFC 2965
    */
-  private static boolean pathMatches(URI uri, HttpCookie cookie) {
-    return normalizePath(uri.getPath()).startsWith(normalizePath(cookie.getPath()));
-  }
+  private boolean pathMatches(String path, String pathToMatchWith) {
+    if (path == pathToMatchWith)
+      return true;
+    if (path == null || pathToMatchWith == null)
+      return false;
+    if (path.startsWith(pathToMatchWith))
+      return true;
 
-  private static String normalizePath(String path) {
-    if (path == null) {
-      path = "";
-    }
-
-    if (!path.endsWith("/")) {
-      path = path + "/";
-    }
-
-    return path;
+    return false;
   }
 
 
   /*
-   * sort cookies with respect to their path: those with more specific Path attributes
-   * precede those with less specific, as defined in RFC 2965 sec. 3.3.4
+   * sort cookies with respect to their path and age: those with more longer Path attributes
+   * precede those with shorter, as defined in RFC 6265. Cookies with the same length
+   * path are distinguished by creation time (older first). Method made PP to enable testing.
    */
-  private List<String> sortByPath(List<HttpCookie> cookies) {
-    Collections.sort(cookies, new CookiePathComparator());
-
-    // BEGIN Android-changed: Cookie header differs in Netscape cookie spec and RFC 2965.
-    // RFC 2965 requires a leading $Version="1" string while Netscape does not.
-    // The workaround here is to add a $Version="1" string in advance.
-    final StringBuilder result = new StringBuilder();
-    int minVersion = 1;
-    for (HttpCookie cookie : cookies) {
-      if (cookie.getVersion() < minVersion) {
-        minVersion = cookie.getVersion();
-      }
-    }
-
-    if (minVersion == 1) {
-      result.append("$Version=\"1\"; ");
-    }
-
-    for (int i = 0; i < cookies.size(); ++i) {
-      if (i != 0) {
-        result.append("; ");
-      }
-
-      result.append(cookies.get(i).toString());
-    }
+  static List<String> sortByPathAndAge(List<HttpCookie> cookies) {
+    cookies.sort(new CookieComparator());
 
     List<String> cookieHeader = new java.util.ArrayList<>();
-    cookieHeader.add(result.toString());
-    // END Android-changed: Cookie header differs in Netscape cookie spec and RFC 2965.
+    for (HttpCookie cookie : cookies) {
+      // Netscape cookie spec and RFC 2965 have different format of Cookie
+      // header; RFC 2965 requires a leading $Version="1" string while Netscape
+      // does not.
+      // The workaround here is to add a $Version="1" string in advance
+      if (cookies.indexOf(cookie) == 0 && cookie.getVersion() > 0) {
+        cookieHeader.add("$Version=\"1\"");
+      }
+
+      cookieHeader.add(cookie.toString());
+    }
     return cookieHeader;
   }
 
 
-  static class CookiePathComparator implements Comparator<HttpCookie> {
+  // Comparator compares the length of the path. Longer paths should precede shorter ones.
+  // As per rfc6265 cookies with equal path lengths sort on creation time.
+
+  static class CookieComparator implements Comparator<HttpCookie> {
     public int compare(HttpCookie c1, HttpCookie c2) {
       if (c1 == c2) return 0;
       if (c1 == null) return -1;
       if (c2 == null) return 1;
 
-      // path rule only applies to the cookies with same name
-      if (!c1.getName().equals(c2.getName())) return 0;
-
-      // Android-changed: normalize before comparison.
-      final String c1Path = normalizePath(c1.getPath());
-      final String c2Path = normalizePath(c2.getPath());
-
-      // those with more specific Path attributes precede those with less specific
-      if (c1Path.startsWith(c2Path))
+      String p1 = c1.getPath();
+      String p2 = c2.getPath();
+      p1 = (p1 == null) ? "" : p1;
+      p2 = (p2 == null) ? "" : p2;
+      int len1 = p1.length();
+      int len2 = p2.length();
+      if (len1 > len2)
         return -1;
-      else if (c2Path.startsWith(c1Path))
+      if (len2 > len1)
         return 1;
-      else
-        return 0;
+
+      return 0;
     }
   }
 }
