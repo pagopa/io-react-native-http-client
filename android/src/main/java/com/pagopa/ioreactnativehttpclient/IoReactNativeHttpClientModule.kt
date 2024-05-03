@@ -8,18 +8,21 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import okhttp3.Call
 import okhttp3.Callback
-import okhttp3.Cookie
-import okhttp3.CookieJar
 import okhttp3.FormBody
-import okhttp3.HttpUrl
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
-import java.net.CookieHandler
-import java.net.CookieManager
 import java.net.CookiePolicy
+
+
+
+// cookie handling (stateful)
+
+val cookieStorage = OpenJDKInMemoryCookieStorage()
+val cookieManager = OpenJDKCookieManager(cookieStorage, CookiePolicy.ACCEPT_ALL)
+val cookieJar=JavaNetCookieJar(cookieManager)
 
 
 class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
@@ -34,43 +37,8 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
   @ReactMethod
   fun httpClientRequest(url: String, isPost:Boolean,formEncodedParams:ReadableMap?, headers:ReadableMap?, shouldFollowRedirects:Boolean?, promise: Promise ) {
 
-
-    val cookieJar: CookieJar = object : CookieJar {
-      val cookieHandler=CookieHandler.getDefault()
-//      private val cookieStore = HashMap<String, List<Cookie>>()
-      override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-        var newCookies= hashMapOf<String,List<String>>()
-        newCookies["Set-Cookie"]=cookies.map {
-          it.toString()
-        }
-
-
-        cookieHandler.put(url.toUri(),newCookies)
-//        cookieStore[url.host] = cookies
-      }
-
-      override fun loadForRequest(url: HttpUrl): List<Cookie> {
-        var newCookies= hashMapOf<String,List<String>>()
-        val myUry=url.toUri()
-        val cookies = cookieHandler.get(myUry,newCookies)
-        val mario = cookies["Cookie"]
-
-       val testMario=mario?.map {
-         Cookie.Builder().build()
-       }
-        val cookieList=listOf<Cookie>()
-        if (testMario!=null){
-          return testMario
-        }else{
-          return cookieList
-        }
-      }
-    }
-
-
-//    val cookieManager = BananaJoe(null, CookiePolicy.ACCEPT_ALL)
-
     var client = OkHttpClient.Builder().followRedirects(shouldFollowRedirects?: true).cookieJar(cookieJar).build()
+    // pre-request
 
     val requestBuilder = Request.Builder()
       .url(url)
@@ -91,7 +59,7 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
       requestBuilder.post(formBuilder.build())
     }
 
-
+    // actual request
 
     client.newCall(requestBuilder.build()).enqueue(
       object : Callback {

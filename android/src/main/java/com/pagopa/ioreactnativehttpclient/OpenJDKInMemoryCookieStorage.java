@@ -43,7 +43,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Edward Wang
  * @since 1.6
  */
-class IMCS implements CookieStore {
+public class OpenJDKInMemoryCookieStorage implements CookieStore {
   // the in-memory representation of cookies
   private List<HttpCookie> cookieJar = null;
 
@@ -61,7 +61,7 @@ class IMCS implements CookieStore {
   /**
    * The default ctor
    */
-  public IMCS() {
+  public OpenJDKInMemoryCookieStorage() {
     cookieJar = new ArrayList<>();
     domainIndex = new HashMap<>();
     uriIndex = new HashMap<>();

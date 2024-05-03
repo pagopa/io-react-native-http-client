@@ -25,11 +25,15 @@
 
 package com.pagopa.ioreactnativehttpclient;
 
+import android.os.Build;
+
 import java.net.CookieHandler;
 import java.net.CookiePolicy;
 import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.List;
 import java.util.Comparator;
@@ -118,7 +122,7 @@ import java.io.IOException;
  * @author Edward Wang
  * @since 1.6
  */
-public class JavaCookieManager extends CookieHandler
+public class OpenJDKCookieManager extends CookieHandler
 {
   /* ---------------- Fields -------------- */
 
@@ -137,7 +141,7 @@ public class JavaCookieManager extends CookieHandler
    * cookie store and accept policy. The effect is same as
    * {@code CookieManager(null, null)}.
    */
-  public JavaCookieManager() {
+  public OpenJDKCookieManager() {
     this(null, null);
   }
 
@@ -153,8 +157,8 @@ public class JavaCookieManager extends CookieHandler
    *                          if {@code null}, ACCEPT_ORIGINAL_SERVER will
    *                          be used.
    */
-  public JavaCookieManager(CookieStore store,
-                           CookiePolicy cookiePolicy)
+  public OpenJDKCookieManager(CookieStore store,
+                              CookiePolicy cookiePolicy)
   {
     // use default cookie policy if not specify one
     policyCallback = (cookiePolicy == null) ? CookiePolicy.ACCEPT_ORIGINAL_SERVER
@@ -162,7 +166,7 @@ public class JavaCookieManager extends CookieHandler
 
     // if not specify CookieStore to use, use default one
     if (store == null) {
-      cookieJar = new IMCS();
+      cookieJar = new OpenJDKInMemoryCookieStorage();
     } else {
       cookieJar = store;
     }
@@ -210,7 +214,7 @@ public class JavaCookieManager extends CookieHandler
       return Map.of();
 
     boolean secureLink = "https".equalsIgnoreCase(uri.getScheme());
-    List<HttpCookie> cookies = new java.util.ArrayList<>();
+    List<HttpCookie> cookies = new ArrayList<>();
     String path = uri.getPath();
     if (path == null || path.isEmpty()) {
       path = "/";
@@ -222,10 +226,13 @@ public class JavaCookieManager extends CookieHandler
       if (pathMatches(path, cookie.getPath()) &&
         (secureLink || !cookie.getSecure())) {
         // Enforce httponly attribute
-        if (cookie.isHttpOnly()) {
-          String s = uri.getScheme();
-          if (!"http".equalsIgnoreCase(s) && !"https".equalsIgnoreCase(s)) {
-            continue;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+          if (cookie.isHttpOnly()) {
+            String s = uri.getScheme();
+            if (!"http".equalsIgnoreCase(s) && !"https".equalsIgnoreCase(s)) {
+              continue;
+            }
           }
         }
         // Let's check the authorize port list if it exists
@@ -407,7 +414,7 @@ public class JavaCookieManager extends CookieHandler
    * path are distinguished by creation time (older first). Method made PP to enable testing.
    */
   static List<String> sortByPathAndAge(List<HttpCookie> cookies) {
-    cookies.sort(new CookieComparator());
+    Collections.sort(cookies,new CookieComparator());
 
     List<String> cookieHeader = new java.util.ArrayList<>();
     for (HttpCookie cookie : cookies) {

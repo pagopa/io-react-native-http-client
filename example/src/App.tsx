@@ -32,7 +32,7 @@ export default function App() {
         console.log('result is', res);
       })
       .catch((err) => {
-        console.log('error is :', JSON.stringify(err));
+        console.log('error is :', JSON.stringify(err.message));
       });
   }, []);
 

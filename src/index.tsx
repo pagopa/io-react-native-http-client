@@ -19,7 +19,7 @@ const IoReactNativeHttpClient = NativeModules.IoReactNativeHttpClient
 
 export type HttpClientResponse =
   | { status: number; body: string; headers: Record<string, string> }
-  | undefined;
+  | { code: number; message: string };
 
 export function nativeClientRequest(
   url: string,

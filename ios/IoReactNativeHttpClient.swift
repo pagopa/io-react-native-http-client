@@ -8,22 +8,39 @@ class IoReactNativeHttpClient: NSObject {
     func httpClientRequest(url: String,isPost:Bool,formEncodedParams:[String:String]?, headers:[String:String]?,shouldFollowRedirects:Bool, resolve: @escaping RCTPromiseResolveBlock,reject: @escaping RCTPromiseRejectBlock) -> Void {
 
         // request building
-        
+
         let redirector = Redirector(
             behavior: shouldFollowRedirects ?
                                     Redirector.Behavior.follow
                                     :
                                     Redirector.Behavior.doNotFollow
         )
-        
+
         let formedHeaders = HTTPHeaders(headers ?? [:])
-        
+
         // post preparation shenanigans
+
         let (httpMethod,httpPostParams) = isPost ?  (HTTPMethod.post,(formEncodedParams ?? [:] )) : (HTTPMethod.get,nil)
-        
-        
+
+        // utils
+        func getCookieByName( cookieName:String )->HTTPCookie?{
+            let allCookies=AF.session.configuration.httpCookieStorage?.cookies
+            if let matchingCookies = allCookies?.filter( {$0.name==cookieName} ){
+                return matchingCookies[0]
+            } else {
+                return nil
+            }
+        }
+
+        func removeCookieByName(cookieName:String)->Void{
+            if let myCookie = getCookieByName(cookieName:cookieName){
+                AF.session.configuration.httpCookieStorage?.deleteCookie(myCookie)
+            }
+
+        }
+
         // response handling
-        
+
         AF.request(url, method:httpMethod, parameters:httpPostParams, headers: formedHeaders).redirect(using: redirector).responseData { response in
 
             if let statusCode = response.response?.statusCode{
@@ -44,7 +61,7 @@ class IoReactNativeHttpClient: NSObject {
                 }
 
                 resolve(formedResponse)
-                
+
             // fail when making the call
             }else if let error = response.error {
                 reject( "error", error.errorDescription, error )
