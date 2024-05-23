@@ -4,6 +4,7 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
+import com.facebook.react.bridge.ReadableMap
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -14,8 +15,6 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
     return NAME
   }
 
-  // Example method
-  // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
   fun multiply(a: String, promise: Promise) {
     var client = OkHttpClient()
@@ -29,6 +28,11 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
         promise.resolve("Error")
       }
     }
+  }
+
+  @ReactMethod
+  func nativeRequest(config: ReadableMap, promise: Promise) {
+    promise.resolve("It worked!")
   }
 
   companion object {
