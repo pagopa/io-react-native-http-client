@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text, Pressable } from 'react-native';
+import { StyleSheet, View, Text, Button } from 'react-native';
 import {
   nativeRequest,
   removeAllCookiesForDomain,
@@ -14,28 +14,35 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Pressable
+      <Button
+        title="Native Call"
         onPress={() =>
           nativeRequest({
-            verb: 'get',
-            url: 'https://www.gasdasdoogle.com',
+            verb: 'post',
+            url: 'https://www.google.com',
+            body: { Uno: 'due' },
             followRedirects: false,
             headers: { f1: 'v1', f2: 'v2' },
             timeoutMilliseconds: 20000,
           }).then(setClientResponse)
         }
-      >
-        <Text>Native Call</Text>
-      </Pressable>
-      <Pressable
-        onPress={() => setCookie('google.com', '', 'MyCookie', 'Walakazam')}
-      >
-        <Text>Set Cookie</Text>
-      </Pressable>
-      <Pressable onPress={() => removeAllCookiesForDomain('google.com')}>
-        <Text>Remove All Cookies</Text>
-      </Pressable>
-      <Text>
+      />
+      <Button
+        title="Set Cookie"
+        onPress={() =>
+          setCookie(
+            'https://www.google.com',
+            '/',
+            'MyCookie',
+            `${Math.random() * 1000}`
+          )
+        }
+      />
+      <Button
+        title="Remove All Cookies"
+        onPress={() => removeAllCookiesForDomain('https://www.google.com')}
+      />
+      <Text numberOfLines={7}>
         {clientResponse
           ? `${clientResponse.type === 'failure' ? clientResponse.message : clientResponse.status}`
           : 'Null'}
@@ -49,6 +56,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 16,
   },
   box: {
     width: 60,

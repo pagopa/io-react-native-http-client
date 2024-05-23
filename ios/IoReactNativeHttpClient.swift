@@ -3,24 +3,6 @@ import Alamofire
 @objc(IoReactNativeHttpClient)
 class IoReactNativeHttpClient: NSObject {
 
-  @objc(multiply:withResolver:withRejecter:)
-    func multiply(a: String, resolve: @escaping RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
-
-      AF.request(a, encoding: JSONEncoding.default).responseJSON { response in
-          let statusCodeOpt = response.response?.statusCode
-          
-          if let statusCode = statusCodeOpt, statusCode == 200 {
-              
-              let result = response.value as! [String: Any]
-              
-              resolve(result["origin"]);
-              return
-          }
-          
-          resolve("Error")
-    }
-  }
-
     @objc(nativeRequest:withResolver:withRejecter:)
     func nativeRequest(config: [String: Any], resolve: @escaping RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) -> Void {
         guard let verb = config["verb"] as? String else {
@@ -45,7 +27,7 @@ class IoReactNativeHttpClient: NSObject {
         let timeoutSeconds = timeoutSecondsFromConfig(config)
 
         AF.request(url, 
-                   method: method, 
+                   method: method,
                    parameters: parametersOpt,
                    headers: headers,
                    requestModifier: { $0.timeoutInterval = timeoutSeconds })
@@ -57,17 +39,14 @@ class IoReactNativeHttpClient: NSObject {
     
     @objc(setCookieForDomain:path:name:value:)
     func setCookieForDomain(_ domain: String, path: String, name: String, value: String) -> Void {
-        let cookieProperties: [HTTPCookiePropertyKey:Any] = [
-            HTTPCookiePropertyKey.domain: domain,
-            HTTPCookiePropertyKey.path: path,
-            HTTPCookiePropertyKey.name: name,
-            HTTPCookiePropertyKey.value: value,
-            HTTPCookiePropertyKey.secure: true
+        let cookieProperties: [HTTPCookiePropertyKey:HTTPCookiePropertyKey] = [
+            HTTPCookiePropertyKey.originURL: HTTPCookiePropertyKey(domain),
+            HTTPCookiePropertyKey.path: HTTPCookiePropertyKey(path),
+            HTTPCookiePropertyKey.name: HTTPCookiePropertyKey(name),
+            HTTPCookiePropertyKey.value: HTTPCookiePropertyKey(value)
         ]
-        if let cookie = HTTPCookie(properties: cookieProperties) {
-            if let cookieStorage = AF.session.configuration.httpCookieStorage {
-                cookieStorage.setCookie(cookie)
-            }
+        if let domainCookie = HTTPCookie(properties: cookieProperties) {
+            AF.session.configuration.httpCookieStorage?.setCookie(domainCookie)
         }
     }
     
@@ -77,6 +56,7 @@ class IoReactNativeHttpClient: NSObject {
             if let cookieStorage = AF.session.configuration.httpCookieStorage {
                 if let domainCookies = cookieStorage.cookies(for: domainURL) {
                     domainCookies.forEach { domainCookie in
+                        print("\(domainCookie.domain) \(domainCookie.path) \(domainCookie.name) \(domainCookie.value) \(domainCookie.isHTTPOnly) \(domainCookie.isSecure) \(domainCookie.isSessionOnly) \(domainCookie.version)")
                         cookieStorage.deleteCookie(domainCookie)
                     }
                 }
