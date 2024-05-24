@@ -16,23 +16,18 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun multiply(a: String, promise: Promise) {
-    var client = OkHttpClient()
-    val request: Request = Request.Builder()
-      .url(a)
-      .build()
-    client.newCall(request).execute().use { response ->
-      if (response.isSuccessful) {
-        promise.resolve(response.body!!.string())
-      } else {
-        promise.resolve("Error")
-      }
-    }
+  fun nativeRequest(config: ReadableMap, promise: Promise) {
+    // TODO
   }
 
   @ReactMethod
-  func nativeRequest(config: ReadableMap, promise: Promise) {
-    promise.resolve("It worked!")
+  fun setCookieForDomain(domain: String, path: String, name: String, value: String, promise: Promise) {
+    // TODO
+  }
+
+  @ReactMethod
+  fun removeAllCookiesForDomain(domain: String, promise: Promise) {
+    // TODO
   }
 
   companion object {
