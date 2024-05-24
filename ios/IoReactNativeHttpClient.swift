@@ -3,6 +3,8 @@ import Alamofire
 @objc(IoReactNativeHttpClient)
 class IoReactNativeHttpClient: NSObject {
 
+    var runningRequests:[String:Request] = [:]
+    
     @objc(nativeRequest:withResolver:withRejecter:)
     func nativeRequest(config: [String: Any], resolve: @escaping RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) -> Void {
         guard let verb = config["verb"] as? String else {
@@ -25,16 +27,25 @@ class IoReactNativeHttpClient: NSObject {
         let headers = headersFromConfig(config)
         let redirector = redirectorFromConfig(config)
         let timeoutSeconds = timeoutSecondsFromConfig(config)
+        let requestIdOpt = requestIdOptFromConfig(config)
 
-        AF.request(url, 
+        let request = AF.request(url,
                    method: method,
                    parameters: parametersOpt,
                    headers: headers,
                    requestModifier: { $0.timeoutInterval = timeoutSeconds })
             .redirect(using: redirector)
-            .responseString { response in
-                self.handleResponse(response, resolve: resolve)
+        if let requestId = requestIdOpt {
+            runningRequests.updateValue(request, forKey: requestId)
+        }
+        request.responseString { response in
+            if let requestId = requestIdOpt {
+                self.runningRequests.removeValue(forKey: requestId)
             }
+            let isCancelled = request.isCancelled
+            self.handleResponse(response, cancelled: isCancelled, resolve: resolve)
+        }
+        
     }
     
     @objc(setCookieForDomain:path:name:value:)
@@ -62,6 +73,22 @@ class IoReactNativeHttpClient: NSObject {
                 }
             }
         }
+    }
+    
+    @objc(cancelRequestWithId:)
+    func cancelRequestWithId(_ requestId: String) {
+        if let request = runningRequests[requestId] {
+            request.cancel()
+            runningRequests.removeValue(forKey: requestId)
+        }
+    }
+    
+    @objc(cancelAllRunningRequests)
+    func cancelAllRunningRequests() -> Void {
+        runningRequests.forEach { runningRequest in
+            runningRequest.value.cancel()
+        }
+        runningRequests.removeAll()
     }
     
     func optMethodFromVerb(_ verb: String) -> HTTPMethod? {
@@ -108,10 +135,16 @@ class IoReactNativeHttpClient: NSObject {
         return 60
     }
     
-    func handleResponse(_ response: AFDataResponse<String>, resolve: @escaping RCTPromiseResolveBlock) -> Void {
+    func requestIdOptFromConfig(_ configOpt: [String: Any]?) -> String? {
+        return configOpt?["requestId"] as? String
+    }
+    
+    func handleResponse(_ response: AFDataResponse<String>, cancelled: Bool, resolve: @escaping RCTPromiseResolveBlock) -> Void {
         let result = response.result
         if case .failure = result {
-            if let error = response.error {
+            if (cancelled) {
+                handleNonHttpFailure("Cancelled", resolve: resolve)
+            } else if let error = response.error {
                 handleNonHttpFailure(error.localizedDescription, resolve: resolve)
             } else {
                 handleNonHttpFailure("Unable to send network request, unknown error", resolve: resolve)

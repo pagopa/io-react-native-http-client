@@ -18,10 +18,6 @@ const IoReactNativeHttpClient = NativeModules.IoReactNativeHttpClient
       }
     );
 
-export function multiply(a: string): Promise<string> {
-  return IoReactNativeHttpClient.multiply(a);
-}
-
 export const nativeRequest = (
   config: HttpCallConfig
 ): Promise<HttpClientResponse> => IoReactNativeHttpClient.nativeRequest(config);
@@ -35,3 +31,15 @@ export const setCookie = (
 
 export const removeAllCookiesForDomain = (domain: string) =>
   IoReactNativeHttpClient.removeAllCookiesForDomain(domain);
+
+export const cancelRequestWithId = (requestId: string) =>
+  IoReactNativeHttpClient.cancelRequestWithId(requestId);
+
+export const cancelAllRunningRequests = () =>
+  IoReactNativeHttpClient.cancelAllRunningRequests();
+
+export const NonHttpErrorCode = 900;
+export const isCancelledResponse = (response: HttpClientResponse) =>
+  response.type === 'failure' &&
+  response.code === NonHttpErrorCode &&
+  response.message === 'Cancelled';

@@ -1,7 +1,9 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text, Button } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import {
+  cancelAllRunningRequests,
+  cancelRequestWithId,
   nativeRequest,
   removeAllCookiesForDomain,
   setCookie,
@@ -11,24 +13,32 @@ import type { HttpClientResponse } from '../../src/types';
 export default function App() {
   const [clientResponse, setClientResponse] =
     React.useState<HttpClientResponse | null>(null);
+  const [requestId, setRequestId] = React.useState<string | null>(null);
 
   return (
     <View style={styles.container}>
-      <Button
-        title="Native Call"
-        onPress={() =>
+      <TouchableOpacity
+        onPress={() => {
+          const newRequestId = `${Math.random() * 1000000000}`;
+          setRequestId(newRequestId);
           nativeRequest({
             verb: 'post',
             url: 'https://www.google.com',
             body: { Uno: 'due' },
             followRedirects: false,
             headers: { f1: 'v1', f2: 'v2' },
-            timeoutMilliseconds: 20000,
-          }).then(setClientResponse)
-        }
-      />
-      <Button
-        title="Set Cookie"
+            requestId: newRequestId,
+            timeoutMilliseconds: 60000,
+          }).then((response) => {
+            setRequestId(null);
+            setClientResponse(response);
+          });
+        }}
+      >
+        <Text>Native Call</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.buttonWithMargin}
         onPress={() =>
           setCookie(
             'https://www.google.com',
@@ -37,12 +47,35 @@ export default function App() {
             `${Math.random() * 1000}`
           )
         }
-      />
-      <Button
-        title="Remove All Cookies"
+      >
+        <Text>Set Cookie</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.buttonWithMargin}
         onPress={() => removeAllCookiesForDomain('https://www.google.com')}
-      />
-      <Text numberOfLines={7}>
+      >
+        <Text>Remove All Cookies</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        disabled={!requestId}
+        style={styles.buttonWithMargin}
+        onPress={() => {
+          cancelRequestWithId(requestId!);
+          setRequestId(null);
+        }}
+      >
+        <Text>Cancel Request</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.buttonWithMargin}
+        onPress={() => {
+          cancelAllRunningRequests();
+          setRequestId(null);
+        }}
+      >
+        <Text>Cancel All</Text>
+      </TouchableOpacity>
+      <Text numberOfLines={7} style={styles.textWithMargin}>
         {clientResponse
           ? `${clientResponse.type === 'failure' ? clientResponse.message : clientResponse.status}`
           : 'Null'}
@@ -62,5 +95,11 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     marginVertical: 20,
+  },
+  buttonWithMargin: {
+    marginTop: 8,
+  },
+  textWithMargin: {
+    marginTop: 16,
   },
 });

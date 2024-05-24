@@ -21,12 +21,22 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun setCookieForDomain(domain: String, path: String, name: String, value: String, promise: Promise) {
+  fun setCookieForDomain(domain: String, path: String, name: String, value: String) {
     // TODO
   }
 
   @ReactMethod
-  fun removeAllCookiesForDomain(domain: String, promise: Promise) {
+  fun removeAllCookiesForDomain(domain: String) {
+    // TODO
+  }
+
+  @ReactMethod
+  fun cancelRequestWithId(requestId: String) {
+    // TODO
+  }
+
+  @ReactMethod
+  fun cancelAllRunningRequests() {
     // TODO
   }
 

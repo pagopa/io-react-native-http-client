@@ -1,6 +1,7 @@
 export type HttpBaseConfig = {
   followRedirects?: boolean;
   headers?: Record<string, string>;
+  requestId?: string;
   timeoutMilliseconds?: number;
   url: string;
 };
