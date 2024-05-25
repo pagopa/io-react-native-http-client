@@ -4,6 +4,7 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import {
   cancelAllRunningRequests,
   cancelRequestWithId,
+  deallocate,
   nativeRequest,
   removeAllCookiesForDomain,
   setCookie,
@@ -74,6 +75,15 @@ export default function App() {
         }}
       >
         <Text>Cancel All</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.buttonWithMargin}
+        onPress={() => {
+          deallocate();
+          setRequestId(null);
+        }}
+      >
+        <Text>Deallocate</Text>
       </TouchableOpacity>
       <Text numberOfLines={7} style={styles.textWithMargin}>
         {clientResponse

@@ -91,6 +91,11 @@ class IoReactNativeHttpClient: NSObject {
         runningRequests.removeAll()
     }
     
+    @objc(deallocate)
+    func deallocate() -> Void {
+        cancelAllRunningRequests()
+    }
+    
     func optMethodFromVerb(_ verb: String) -> HTTPMethod? {
         return ("get".caseInsensitiveCompare(verb) == .orderedSame)
             ? HTTPMethod.get
@@ -145,7 +150,11 @@ class IoReactNativeHttpClient: NSObject {
             if (cancelled) {
                 handleNonHttpFailure("Cancelled", resolve: resolve)
             } else if let error = response.error {
-                handleNonHttpFailure(error.localizedDescription, resolve: resolve)
+                if (error.isSessionTaskError) {
+                    handleNonHttpFailure("Timeout", resolve: resolve)
+                } else {
+                    handleNonHttpFailure(error.localizedDescription, resolve: resolve)
+                }
             } else {
                 handleNonHttpFailure("Unable to send network request, unknown error", resolve: resolve)
             }

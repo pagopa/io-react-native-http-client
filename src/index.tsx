@@ -38,6 +38,8 @@ export const cancelRequestWithId = (requestId: string) =>
 export const cancelAllRunningRequests = () =>
   IoReactNativeHttpClient.cancelAllRunningRequests();
 
+export const deallocate = () => IoReactNativeHttpClient.deallocate();
+
 export const NonHttpErrorCode = 900;
 export const isCancelledResponse = (response: HttpClientResponse) =>
   response.type === 'failure' &&
