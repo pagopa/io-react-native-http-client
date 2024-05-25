@@ -27,7 +27,7 @@ class IoReactNativeHttpClient: NSObject {
         let headers = headersFromConfig(config)
         let redirector = redirectorFromConfig(config)
         let timeoutSeconds = timeoutSecondsFromConfig(config)
-        let requestIdOpt = requestIdOptFromConfig(config)
+        let requestId = requestIdFromConfigOrRandom(config)
 
         let request = AF.request(url,
                    method: method,
@@ -35,13 +35,11 @@ class IoReactNativeHttpClient: NSObject {
                    headers: headers,
                    requestModifier: { $0.timeoutInterval = timeoutSeconds })
             .redirect(using: redirector)
-        if let requestId = requestIdOpt {
-            runningRequests.updateValue(request, forKey: requestId)
-        }
+        
+        runningRequests.updateValue(request, forKey: requestId)
+        
         request.responseString { response in
-            if let requestId = requestIdOpt {
-                self.runningRequests.removeValue(forKey: requestId)
-            }
+            self.runningRequests.removeValue(forKey: requestId)
             let isCancelled = request.isCancelled
             self.handleResponse(response, cancelled: isCancelled, resolve: resolve)
         }
@@ -140,8 +138,8 @@ class IoReactNativeHttpClient: NSObject {
         return 60
     }
     
-    func requestIdOptFromConfig(_ configOpt: [String: Any]?) -> String? {
-        return configOpt?["requestId"] as? String
+    func requestIdFromConfigOrRandom(_ configOpt: [String: Any]?) -> String {
+        return (configOpt?["requestId"] as? String) ?? NSUUID().uuidString
     }
     
     func handleResponse(_ response: AFDataResponse<String>, cancelled: Bool, resolve: @escaping RCTPromiseResolveBlock) -> Void {
