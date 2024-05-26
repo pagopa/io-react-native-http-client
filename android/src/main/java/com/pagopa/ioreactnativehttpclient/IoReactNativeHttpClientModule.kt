@@ -1,9 +1,9 @@
 package com.pagopa.ioreactnativehttpclient
 
+import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableNativeMap
 import io.ktor.client.HttpClient
@@ -30,7 +30,6 @@ import io.ktor.http.Url
 import io.ktor.util.StringValues
 import io.ktor.util.StringValuesBuilderImpl
 import io.ktor.util.date.GMTDate
-import io.ktor.util.flattenForEach
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -52,8 +51,8 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
   private val runningRequestJobs = HashMap<String, Job>()
   private var inMemoryCookieStorage = AcceptAllCookiesStorage()
 
-  private var followsRedirectClient: HttpClient? = null;
-  private var doesNotFollowRedirectClient: HttpClient? = null;
+  private var followsRedirectClient: HttpClient? = null
+  private var doesNotFollowRedirectClient: HttpClient? = null
 
   private var defaultRequestTimeoutMilliseconds = 60000
 
@@ -88,52 +87,13 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
 
       val requestJob = coroutineScope.launch {
         try {
-          val response = client.request(url) {
-            method = requestMethod
-            if (bodyOpt != null) {
-              setBody(bodyOpt)
-            }
-            headers {
-              appendAll(headers)
-            }
-            timeout {
-              requestTimeoutMillis = timeoutMilliseconds
-            }
-          }
-          val responseStatusCode = response.status.value
-          val responseBody = response.body<String>()
-
-          val responseHeaders = WritableNativeMap();
-          response.headers.forEach { headerName: String, headerValues: List<String> ->
-            val joinedValues = headerValues.joinToString()
-            responseHeaders.putString(headerName, joinedValues)
-          }
-
-          val isSuccessHttpStatusCode = responseStatusCode < 400
-          val responseMap = WritableNativeMap()
-          responseMap.putString("type", if (isSuccessHttpStatusCode) "success" else "failure")
-          responseMap.putInt(if (isSuccessHttpStatusCode) "status" else "code", responseStatusCode)
-          responseMap.putString(if (isSuccessHttpStatusCode) "body" else "message", responseBody)
-          responseMap.putMap("headers", responseHeaders)
-
-          runningRequestJobs.remove(requestId)
-
-          promise.resolve(responseMap)
+          sendRequestAndHandleResponse(
+            client, url, requestMethod, bodyOpt, headers, timeoutMilliseconds, requestId, promise
+          )
 
         } catch (e: Exception) {
 
-          runningRequestJobs.remove(requestId)
-
-          var message = e.message ?: "Unable to send network request, unknown error"
-          if (e is HttpRequestTimeoutException || e is ConnectTimeoutException || e is SocketTimeoutException) {
-            message = "Timeout"
-          } else if (e is CancellationException) {
-            message = "Cancelled"
-          } else if (e is SSLHandshakeException) {
-            message = "TLS Failure"
-          }
-
-          handleNonHttpFailure(message, promise)
+          handleRequestException(requestId, e, promise)
         }
       }
       runningRequestJobs[requestId] = requestJob
@@ -248,27 +208,24 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
     }
 
   @Suppress("SameParameterValue")
-  private fun longFromConfigForKey(configOpt: ReadableMap?, key: String): Long =
-    configOpt?.let {
-      return (try {
-        it.getDouble(key)
-      } catch (e: Exception) {
-        defaultRequestTimeoutMilliseconds
-      }).toLong()
-    } ?: run {
-      defaultRequestTimeoutMilliseconds.toLong()
-    }
+  private fun longFromConfigForKey(configOpt: ReadableMap?, key: String): Long = configOpt?.let {
+    return (try {
+      it.getDouble(key)
+    } catch (e: Exception) {
+      defaultRequestTimeoutMilliseconds
+    }).toLong()
+  } ?: run {
+    defaultRequestTimeoutMilliseconds.toLong()
+  }
 
   private fun optMethodFromVerb(verb: String): HttpMethod? =
     if ("get".equals(verb, ignoreCase = true)) HttpMethod.Get else if ("post".equals(
-        verb,
-        ignoreCase = true
+        verb, ignoreCase = true
       )
     ) HttpMethod.Post else null
 
   private fun optBodyFromMethodAndConfig(
-    method: HttpMethod,
-    configOpt: ReadableMap?
+    method: HttpMethod, configOpt: ReadableMap?
   ): FormDataContent? {
     if (method == HttpMethod.Post) {
       readableMapFromConfigForKey(configOpt, "body")?.let {
@@ -294,7 +251,7 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
         }
       }
     }
-    return headers.build();
+    return headers.build()
   }
 
   private fun followsRedirectsFromConfig(configOpt: ReadableMap?): Boolean =
@@ -302,6 +259,66 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
 
   private fun requestIdFromConfigOrRandom(configOpt: ReadableMap?): String =
     stringFromConfigForKey(configOpt, "requestId") ?: UUID.randomUUID().toString()
+
+  private suspend fun sendRequestAndHandleResponse(
+    client: HttpClient,
+    url: String,
+    requestMethod: HttpMethod,
+    bodyOpt: FormDataContent?,
+    headers: StringValues,
+    timeoutMilliseconds: Long,
+    requestId: String,
+    promise: Promise
+  ) {
+    val response = client.request(url) {
+      method = requestMethod
+      if (bodyOpt != null) {
+        setBody(bodyOpt)
+      }
+      headers {
+        appendAll(headers)
+      }
+      timeout {
+        requestTimeoutMillis = timeoutMilliseconds
+      }
+    }
+    val responseStatusCode = response.status.value
+    val responseBody = response.body<String>()
+
+    val responseHeaders = WritableNativeMap()
+    response.headers.forEach { headerName: String, headerValues: List<String> ->
+      val joinedValues = headerValues.joinToString()
+      responseHeaders.putString(headerName, joinedValues)
+    }
+
+    val isSuccessHttpStatusCode = responseStatusCode < 400
+    val responseMap = WritableNativeMap()
+    responseMap.putString("type", if (isSuccessHttpStatusCode) "success" else "failure")
+    responseMap.putInt(if (isSuccessHttpStatusCode) "status" else "code", responseStatusCode)
+    responseMap.putString(if (isSuccessHttpStatusCode) "body" else "message", responseBody)
+    responseMap.putMap("headers", responseHeaders)
+
+    runningRequestJobs.remove(requestId)
+
+    promise.resolve(responseMap)
+  }
+
+  private fun handleRequestException(
+    requestId: String, e: Exception, promise: Promise
+  ) {
+    runningRequestJobs.remove(requestId)
+
+    var message = e.message ?: "Unable to send network request, unknown error"
+    if (e is HttpRequestTimeoutException || e is ConnectTimeoutException || e is SocketTimeoutException) {
+      message = "Timeout"
+    } else if (e is CancellationException) {
+      message = "Cancelled"
+    } else if (e is SSLHandshakeException) {
+      message = "TLS Failure"
+    }
+
+    handleNonHttpFailure(message, promise)
+  }
 
   private fun handleNonHttpFailure(message: String, promise: Promise) {
     val failureHttpResponse = WritableNativeMap()
