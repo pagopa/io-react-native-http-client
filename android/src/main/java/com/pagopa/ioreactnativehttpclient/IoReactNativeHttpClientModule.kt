@@ -38,6 +38,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.util.UUID
 import java.util.concurrent.CancellationException
+import javax.net.ssl.SSLHandshakeException
 
 class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
@@ -128,6 +129,8 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
             message = "Timeout"
           } else if (e is CancellationException) {
             message = "Cancelled"
+          } else if (e is SSLHandshakeException) {
+            message = "TLS Failure"
           }
 
           handleNonHttpFailure(message, promise)

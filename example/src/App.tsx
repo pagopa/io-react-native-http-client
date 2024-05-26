@@ -23,9 +23,8 @@ export default function App() {
           const newRequestId = `${Math.random() * 1000000000}`;
           setRequestId(newRequestId);
           nativeRequest({
-            verb: 'post',
+            verb: 'get',
             url: 'https://www.google.com',
-            body: { Uno: 'due' },
             followRedirects: false,
             headers: { f1: 'v1', f2: 'v2' },
             requestId: newRequestId,

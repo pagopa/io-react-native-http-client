@@ -150,6 +150,8 @@ class IoReactNativeHttpClient: NSObject {
             } else if let error = response.error {
                 if (error.isSessionTaskError) {
                     handleNonHttpFailure("Timeout", resolve: resolve)
+                } else if (error.isServerTrustEvaluationError) {
+                    handleNonHttpFailure("TLS Failure", resolve: resolve)
                 } else {
                     handleNonHttpFailure(error.localizedDescription, resolve: resolve)
                 }
