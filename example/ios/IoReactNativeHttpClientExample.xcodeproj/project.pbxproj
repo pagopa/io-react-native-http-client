@@ -8,12 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* IoReactNativeHttpClientExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* IoReactNativeHttpClientExampleTests.m */; };
+		10DD7CAA50CA2D7BE3EC80AB /* libPods-IoReactNativeHttpClientExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14A7C530730BA8EC12A425D9 /* libPods-IoReactNativeHttpClientExample.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		79F056D5F1537750B94411CF /* libPods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EFD901C7612E6CB62E9F65B3 /* libPods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		89573B6D50F7DBDBA054D313 /* libPods-IoReactNativeHttpClientExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D8DFA76F4F58EFD81EE9903 /* libPods-IoReactNativeHttpClientExample.a */; };
-		C19F362F7849D7B64622DDB1 /* libPods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CB9133812CD51B441235AC2E /* libPods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -30,20 +30,20 @@
 		00E356EE1AD99517003FC87E /* IoReactNativeHttpClientExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IoReactNativeHttpClientExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* IoReactNativeHttpClientExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IoReactNativeHttpClientExampleTests.m; sourceTree = "<group>"; };
+		072448CA0A085DEE41DD8558 /* Pods-IoReactNativeHttpClientExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IoReactNativeHttpClientExample.debug.xcconfig"; path = "Target Support Files/Pods-IoReactNativeHttpClientExample/Pods-IoReactNativeHttpClientExample.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* IoReactNativeHttpClientExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IoReactNativeHttpClientExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = IoReactNativeHttpClientExample/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = IoReactNativeHttpClientExample/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = IoReactNativeHttpClientExample/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = IoReactNativeHttpClientExample/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = IoReactNativeHttpClientExample/main.m; sourceTree = "<group>"; };
-		5D8DFA76F4F58EFD81EE9903 /* libPods-IoReactNativeHttpClientExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-IoReactNativeHttpClientExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		14A7C530730BA8EC12A425D9 /* libPods-IoReactNativeHttpClientExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-IoReactNativeHttpClientExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = IoReactNativeHttpClientExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		84EDB01F48110FA2D6F66A10 /* Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
-		9DF208A8974F596294A75058 /* Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.release.xcconfig"; path = "Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.release.xcconfig"; sourceTree = "<group>"; };
-		CB9133812CD51B441235AC2E /* libPods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D132D06A0BF51AD767152B6C /* Pods-IoReactNativeHttpClientExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IoReactNativeHttpClientExample.debug.xcconfig"; path = "Target Support Files/Pods-IoReactNativeHttpClientExample/Pods-IoReactNativeHttpClientExample.debug.xcconfig"; sourceTree = "<group>"; };
+		8DEA1989F0633C804507871A /* Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.release.xcconfig"; path = "Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.release.xcconfig"; sourceTree = "<group>"; };
+		CD12CC38889F4D5D44A56BA2 /* Pods-IoReactNativeHttpClientExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IoReactNativeHttpClientExample.release.xcconfig"; path = "Target Support Files/Pods-IoReactNativeHttpClientExample/Pods-IoReactNativeHttpClientExample.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F881C133AA427D379A83E2F3 /* Pods-IoReactNativeHttpClientExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IoReactNativeHttpClientExample.release.xcconfig"; path = "Target Support Files/Pods-IoReactNativeHttpClientExample/Pods-IoReactNativeHttpClientExample.release.xcconfig"; sourceTree = "<group>"; };
+		EFD901C7612E6CB62E9F65B3 /* libPods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F5ECE1D8BB324A8C88C9B804 /* Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,7 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C19F362F7849D7B64622DDB1 /* libPods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.a in Frameworks */,
+				79F056D5F1537750B94411CF /* libPods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,7 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				89573B6D50F7DBDBA054D313 /* libPods-IoReactNativeHttpClientExample.a in Frameworks */,
+				10DD7CAA50CA2D7BE3EC80AB /* libPods-IoReactNativeHttpClientExample.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,8 +100,8 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				5D8DFA76F4F58EFD81EE9903 /* libPods-IoReactNativeHttpClientExample.a */,
-				CB9133812CD51B441235AC2E /* libPods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.a */,
+				14A7C530730BA8EC12A425D9 /* libPods-IoReactNativeHttpClientExample.a */,
+				EFD901C7612E6CB62E9F65B3 /* libPods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -140,10 +140,10 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				D132D06A0BF51AD767152B6C /* Pods-IoReactNativeHttpClientExample.debug.xcconfig */,
-				F881C133AA427D379A83E2F3 /* Pods-IoReactNativeHttpClientExample.release.xcconfig */,
-				84EDB01F48110FA2D6F66A10 /* Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.debug.xcconfig */,
-				9DF208A8974F596294A75058 /* Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.release.xcconfig */,
+				072448CA0A085DEE41DD8558 /* Pods-IoReactNativeHttpClientExample.debug.xcconfig */,
+				CD12CC38889F4D5D44A56BA2 /* Pods-IoReactNativeHttpClientExample.release.xcconfig */,
+				F5ECE1D8BB324A8C88C9B804 /* Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.debug.xcconfig */,
+				8DEA1989F0633C804507871A /* Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -155,12 +155,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "IoReactNativeHttpClientExampleTests" */;
 			buildPhases = (
-				0A1D79F0495DCBB4F27B91FD /* [CP] Check Pods Manifest.lock */,
+				E8A7E1EB0C31DFE5097D1B9B /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				31539766451AD6FD37091669 /* [CP] Embed Pods Frameworks */,
-				BA22B4C66AA9A4D977AB01F9 /* [CP] Copy Pods Resources */,
+				A1176875DC10FE225FBF41EF /* [CP] Embed Pods Frameworks */,
+				15E94FD8053E9E6FB9774CAC /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -176,14 +176,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "IoReactNativeHttpClientExample" */;
 			buildPhases = (
-				61614ABAC351EB73E58FEE50 /* [CP] Check Pods Manifest.lock */,
+				DAEB46FBE98E6AAC08E5BD3F /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				E941F119839E51AD33272C07 /* [CP] Embed Pods Frameworks */,
-				424E414039E61832A56FCCFB /* [CP] Copy Pods Resources */,
+				6D968E91B3E0A80A096F3E6F /* [CP] Embed Pods Frameworks */,
+				7261B0DC35F8DE6B8851608E /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -266,46 +266,41 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"../node_modules/react-native/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"../node_modules/react-native/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
-		0A1D79F0495DCBB4F27B91FD /* [CP] Check Pods Manifest.lock */ = {
+		15E94FD8053E9E6FB9774CAC /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
+			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests-checkManifestLockResult.txt",
+				"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		31539766451AD6FD37091669 /* [CP] Embed Pods Frameworks */ = {
+		6D968E91B3E0A80A096F3E6F /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample/Pods-IoReactNativeHttpClientExample-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample/Pods-IoReactNativeHttpClientExample-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample/Pods-IoReactNativeHttpClientExample-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		424E414039E61832A56FCCFB /* [CP] Copy Pods Resources */ = {
+		7261B0DC35F8DE6B8851608E /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -322,7 +317,24 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample/Pods-IoReactNativeHttpClientExample-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		61614ABAC351EB73E58FEE50 /* [CP] Check Pods Manifest.lock */ = {
+		A1176875DC10FE225FBF41EF /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DAEB46FBE98E6AAC08E5BD3F /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -344,38 +356,26 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		BA22B4C66AA9A4D977AB01F9 /* [CP] Copy Pods Resources */ = {
+		E8A7E1EB0C31DFE5097D1B9B /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			name = "[CP] Copy Pods Resources";
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests/Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		E941F119839E51AD33272C07 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample/Pods-IoReactNativeHttpClientExample-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample/Pods-IoReactNativeHttpClientExample-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-IoReactNativeHttpClientExample/Pods-IoReactNativeHttpClientExample-frameworks.sh\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
@@ -430,7 +430,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 84EDB01F48110FA2D6F66A10 /* Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.debug.xcconfig */;
+			baseConfigurationReference = F5ECE1D8BB324A8C88C9B804 /* Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -457,7 +457,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9DF208A8974F596294A75058 /* Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.release.xcconfig */;
+			baseConfigurationReference = 8DEA1989F0633C804507871A /* Pods-IoReactNativeHttpClientExample-IoReactNativeHttpClientExampleTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -481,7 +481,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D132D06A0BF51AD767152B6C /* Pods-IoReactNativeHttpClientExample.debug.xcconfig */;
+			baseConfigurationReference = 072448CA0A085DEE41DD8558 /* Pods-IoReactNativeHttpClientExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -508,7 +508,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F881C133AA427D379A83E2F3 /* Pods-IoReactNativeHttpClientExample.release.xcconfig */;
+			baseConfigurationReference = CD12CC38889F4D5D44A56BA2 /* Pods-IoReactNativeHttpClientExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
