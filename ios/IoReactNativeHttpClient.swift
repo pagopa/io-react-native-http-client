@@ -65,7 +65,6 @@ class IoReactNativeHttpClient: NSObject {
             if let cookieStorage = AF.session.configuration.httpCookieStorage {
                 if let domainCookies = cookieStorage.cookies(for: domainURL) {
                     domainCookies.forEach { domainCookie in
-                        print("\(domainCookie.domain) \(domainCookie.path) \(domainCookie.name) \(domainCookie.value) \(domainCookie.isHTTPOnly) \(domainCookie.isSecure) \(domainCookie.isSessionOnly) \(domainCookie.version)")
                         cookieStorage.deleteCookie(domainCookie)
                     }
                 }
