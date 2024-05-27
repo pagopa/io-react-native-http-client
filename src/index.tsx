@@ -1,5 +1,10 @@
 import { NativeModules, Platform } from 'react-native';
-import type { HttpCallConfig, HttpClientResponse } from './types';
+import type {
+  HttpCallConfig,
+  HttpClientFailureResponse,
+  HttpClientResponse,
+  HttpClientSuccessResponse,
+} from './types';
 
 const LINKING_ERROR =
   `The package '@pagopa/io-react-native-http-client' doesn't seem to be linked. Make sure: \n\n` +
@@ -38,8 +43,34 @@ export const cancelRequestWithId = (requestId: string) =>
 export const cancelAllRunningRequests = () =>
   IoReactNativeHttpClient.cancelAllRunningRequests();
 
+export const deallocate = () => IoReactNativeHttpClient.deallocate();
+
 export const NonHttpErrorCode = 900;
-export const isCancelledResponse = (response: HttpClientResponse) =>
-  response.type === 'failure' &&
+export const CancelledMessage = 'Cancelled';
+export const TimeoutMessage = 'Timeout';
+export const TLSMessage = 'TLS Failure';
+
+export const isFailureResponse = (
+  response: HttpClientResponse
+): response is HttpClientFailureResponse => response.type === 'failure';
+export const isSuccessResponse = (
+  response: HttpClientResponse
+): response is HttpClientSuccessResponse => response.type === 'success';
+export const isCancelledFailure = (
+  response: HttpClientResponse
+): response is HttpClientFailureResponse =>
+  isFailureResponse(response) &&
   response.code === NonHttpErrorCode &&
-  response.message === 'Cancelled';
+  response.message === CancelledMessage;
+export const isTimeoutFailure = (
+  response: HttpClientResponse
+): response is HttpClientFailureResponse =>
+  isFailureResponse(response) &&
+  response.code === NonHttpErrorCode &&
+  response.message === TimeoutMessage;
+export const isTLSFailure = (
+  response: HttpClientResponse
+): response is HttpClientFailureResponse =>
+  isFailureResponse(response) &&
+  response.code === NonHttpErrorCode &&
+  response.message === TLSMessage;

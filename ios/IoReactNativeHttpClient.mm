@@ -14,6 +14,7 @@ RCT_EXTERN_METHOD(setCookieForDomain:(NSString *)domain
 RCT_EXTERN_METHOD(removeAllCookiesForDomain:(NSString *)domain)
 RCT_EXTERN_METHOD(cancelRequestWithId:(NSString *)requestId)
 RCT_EXTERN_METHOD(cancelAllRunningRequests)
+RCT_EXTERN_METHOD(deallocate)
 
 + (BOOL)requiresMainQueueSetup
 {
