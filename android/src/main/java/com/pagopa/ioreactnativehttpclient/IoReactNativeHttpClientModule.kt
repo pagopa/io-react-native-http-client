@@ -288,7 +288,7 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
     val responseHeaders = WritableNativeMap()
     response.headers.forEach { headerName: String, headerValues: List<String> ->
       val joinedValues = headerValues.joinToString()
-      responseHeaders.putString(headerName, joinedValues)
+      responseHeaders.putString(headerName.lowercase(), joinedValues)
     }
 
     val isSuccessHttpStatusCode = responseStatusCode < 400

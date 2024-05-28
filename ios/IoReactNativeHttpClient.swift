@@ -165,7 +165,7 @@ class IoReactNativeHttpClient: NSObject {
             return;
         }
         let body = response.value ?? ""
-        let headers = response.response?.headers.dictionary ?? [:]
+        let headers = toLowerCaseHeaders(response.response?.headers)
         
         let httpResponse: [String: Any] = statusCode < 400 ? [
             "type": "success",
@@ -179,6 +179,17 @@ class IoReactNativeHttpClient: NSObject {
             "headers": headers
         ]
         resolve(httpResponse)
+    }
+    
+    func toLowerCaseHeaders(_ headersOpt: HTTPHeaders?) -> [String: String] {
+        if var headersDictionary = headersOpt?.dictionary {
+            let caseSensitiveKeys = headersDictionary.keys
+            for key in caseSensitiveKeys {
+                headersDictionary[key.lowercased()] = headersDictionary.removeValue(forKey: key)
+            }
+            return headersDictionary
+        }
+        return [:]
     }
     
     func handleNonHttpFailure(_ message: String, resolve: @escaping RCTPromiseResolveBlock) -> Void {
