@@ -32,18 +32,19 @@ export const setCookie = (
   path: string,
   name: string,
   value: string
-) => IoReactNativeHttpClient.setCookieForDomain(domain, path, name, value);
+): void =>
+  IoReactNativeHttpClient.setCookieForDomain(domain, path, name, value);
 
-export const removeAllCookiesForDomain = (domain: string) =>
+export const removeAllCookiesForDomain = (domain: string): void =>
   IoReactNativeHttpClient.removeAllCookiesForDomain(domain);
 
-export const cancelRequestWithId = (requestId: string) =>
+export const cancelRequestWithId = (requestId: string): void =>
   IoReactNativeHttpClient.cancelRequestWithId(requestId);
 
-export const cancelAllRunningRequests = () =>
+export const cancelAllRunningRequests = (): void =>
   IoReactNativeHttpClient.cancelAllRunningRequests();
 
-export const deallocate = () => IoReactNativeHttpClient.deallocate();
+export const deallocate = (): void => IoReactNativeHttpClient.deallocate();
 
 export const NonHttpErrorCode = 900;
 export const CancelledMessage = 'Cancelled';
@@ -53,24 +54,30 @@ export const TLSMessage = 'TLS Failure';
 export const isFailureResponse = (
   response: HttpClientResponse
 ): response is HttpClientFailureResponse => response.type === 'failure';
+
 export const isSuccessResponse = (
   response: HttpClientResponse
 ): response is HttpClientSuccessResponse => response.type === 'success';
+
 export const isCancelledFailure = (
   response: HttpClientResponse
 ): response is HttpClientFailureResponse =>
   isFailureResponse(response) &&
   response.code === NonHttpErrorCode &&
   response.message === CancelledMessage;
+
 export const isTimeoutFailure = (
   response: HttpClientResponse
 ): response is HttpClientFailureResponse =>
   isFailureResponse(response) &&
   response.code === NonHttpErrorCode &&
   response.message === TimeoutMessage;
+
 export const isTLSFailure = (
   response: HttpClientResponse
 ): response is HttpClientFailureResponse =>
   isFailureResponse(response) &&
   response.code === NonHttpErrorCode &&
   response.message === TLSMessage;
+
+export * from './types';
