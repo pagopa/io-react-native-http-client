@@ -1,6 +1,6 @@
 {
   "name": "@pagopa/io-react-native-http-client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A react-native wrapper for native HTTP client",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
