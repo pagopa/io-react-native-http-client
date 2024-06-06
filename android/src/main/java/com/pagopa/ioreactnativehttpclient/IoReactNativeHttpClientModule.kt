@@ -173,16 +173,24 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
   }
 
   private fun stringFromConfigForKey(configOpt: ReadableMap?, key: String): String? =
-    configOpt?.getString(key);
+    try {
+      configOpt?.getString(key);
+    } catch (_: Exception) {
+      null
+    }
 
   private fun readableMapFromConfigForKey(configOpt: ReadableMap?, key: String): ReadableMap? =
-    configOpt?.getMap(key)
+    try {
+      configOpt?.getMap(key)
+    } catch (_: Exception) {
+      null
+    }
 
   @Suppress("SameParameterValue")
   private fun booleanFromConfigForKey(configOpt: ReadableMap?, key: String): Boolean? =
     try {
       configOpt?.getBoolean(key)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
       null
     }
 
@@ -190,7 +198,7 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
   private fun longFromConfigForKey(configOpt: ReadableMap?, key: String): Long =
     try {
       configOpt?.getDouble(key)?.toLong() ?: defaultRequestTimeoutMilliseconds
-    } catch (e: Exception) {
+    } catch (_: Exception) {
       defaultRequestTimeoutMilliseconds
     }
 
