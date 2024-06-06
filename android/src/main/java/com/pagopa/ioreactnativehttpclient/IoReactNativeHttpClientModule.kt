@@ -229,13 +229,12 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
 
   private fun headersFromConfig(configOpt: ReadableMap?): StringValues {
     val headers = ParametersBuilder()
-    readableMapFromConfigForKey(configOpt, "headers")?.let { map ->
-      val iterator = map.keySetIterator()
-      while (iterator.hasNextKey()) {
-        val key = iterator.nextKey()
-        map.getString(key)?.let { value ->
-          headers.append(key, value)
-        }
+    readableMapFromConfigForKey(
+      configOpt,
+      "headers"
+    )?.entryIterator?.forEach { (headerName, headerValue) ->
+      if (headerValue is String) {
+        headers.append(headerName, headerValue)
       }
     }
     return headers.build()
