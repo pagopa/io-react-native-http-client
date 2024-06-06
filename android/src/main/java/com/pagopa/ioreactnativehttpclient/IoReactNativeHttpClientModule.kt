@@ -26,6 +26,7 @@ import io.ktor.client.request.setBody
 import io.ktor.http.Cookie
 import io.ktor.http.HttpMethod
 import io.ktor.http.Parameters
+import io.ktor.http.ParametersBuilder
 import io.ktor.http.Url
 import io.ktor.util.StringValues
 import io.ktor.util.StringValuesBuilderImpl
@@ -42,37 +43,30 @@ import javax.net.ssl.SSLHandshakeException
 class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
 
-  override fun getName(): String {
-    return NAME
+  override fun getName(): String = NAME
+
+  private val coroutineScope by lazy {
+    CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
   }
 
-  private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-
-  private val runningRequestJobs = HashMap<String, Job>()
+  private val runningRequestJobs = mutableMapOf<String, Job>()
   private var inMemoryCookieStorage = AcceptAllCookiesStorage()
 
   private var followsRedirectClient: HttpClient? = null
   private var doesNotFollowRedirectClient: HttpClient? = null
 
-  private var defaultRequestTimeoutMilliseconds = 60000
+  private var defaultRequestTimeoutMilliseconds = 60_000L
 
   @ReactMethod
   fun nativeRequest(config: ReadableMap, promise: Promise) {
+    val verb = stringFromConfigForKey(config, "verb")
+      ?: return handleNonHttpFailure("Bad configuration, missing 'verb'", promise)
 
-    val verb = stringFromConfigForKey(config, "verb") ?: run {
-      handleNonHttpFailure("Bad configuration, missing 'verb'", promise)
-      return
-    }
+    val requestMethod = optMethodFromVerb(verb)
+      ?: return handleNonHttpFailure("Unsupported configuration, unknown verb '$verb'", promise)
 
-    val requestMethod = optMethodFromVerb(verb) ?: run {
-      handleNonHttpFailure("Unsupported configuration, unknown verb '$verb'", promise)
-      return
-    }
-
-    val url = stringFromConfigForKey(config, "url") ?: run {
-      handleNonHttpFailure("Bad configuration, missing 'url'", promise)
-      return
-    }
+    val url = stringFromConfigForKey(config, "url")
+      ?: return handleNonHttpFailure("Bad configuration, missing 'url'", promise)
 
     val bodyOpt = optBodyFromMethodAndConfig(requestMethod, config)
 
@@ -83,16 +77,14 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
 
     initializeClientIfNeeded(followsRedirects)
 
-    (if (followsRedirects) followsRedirectClient else doesNotFollowRedirectClient)?.let { client ->
-
+    val httpClient = if (followsRedirects) followsRedirectClient else doesNotFollowRedirectClient
+    httpClient?.let { client ->
       val requestJob = coroutineScope.launch {
         try {
           sendRequestAndHandleResponse(
             client, url, requestMethod, bodyOpt, headers, timeoutMilliseconds, requestId, promise
           )
-
         } catch (e: Exception) {
-
           handleRequestException(requestId, e, promise)
         }
       }
@@ -109,6 +101,8 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
         val cookie = Cookie(name, value, path = path, domain = domainHost)
         inMemoryCookieStorage.addCookie(domain, cookie)
       } catch (_: Exception) {
+        // TODO: what about handling this scenario?
+        // All the above code is throwing? What about wrapping only what throws and use runCatching?
       }
     }
   }
@@ -124,24 +118,23 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
           inMemoryCookieStorage.addCookie(domain, expiredCookie)
         }
       } catch (_: Exception) {
+        // TODO: what about handling this scenario?
+        // All the above code is throwing? What about wrapping only what throws and use runCatching?
       }
     }
   }
 
   @ReactMethod
   fun cancelRequestWithId(requestId: String) {
-    val jobOpt = runningRequestJobs[requestId]
-    jobOpt?.let {
-      jobOpt.cancel()
+    runningRequestJobs[requestId]?.let { job ->
+      job.cancel()
       runningRequestJobs.remove(requestId)
     }
   }
 
   @ReactMethod
   fun cancelAllRunningRequests() {
-    runningRequestJobs.values.forEach {
-      it.cancel()
-    }
+    runningRequestJobs.values.forEach { it.cancel() }
     runningRequestJobs.clear()
   }
 
@@ -169,85 +162,71 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
 
   private fun initializeClientIfNeeded(shouldFollowRedirects: Boolean) {
     if (shouldFollowRedirects) {
-      if (followsRedirectClient == null) {
+      followsRedirectClient ?: run {
         followsRedirectClient = HttpClient(Android, generateEngineConfiguration(true))
       }
     } else {
-      if (doesNotFollowRedirectClient == null) {
+      doesNotFollowRedirectClient ?: run {
         doesNotFollowRedirectClient = HttpClient(Android, generateEngineConfiguration(false))
       }
     }
   }
 
   private fun stringFromConfigForKey(configOpt: ReadableMap?, key: String): String? =
-    configOpt?.let {
-      return try {
-        it.getString(key)
-      } catch (e: Exception) {
-        null
-      }
-    }
+    configOpt?.getString(key);
 
   private fun readableMapFromConfigForKey(configOpt: ReadableMap?, key: String): ReadableMap? =
-    configOpt?.let {
-      return try {
-        it.getMap(key)
-      } catch (e: Exception) {
-        null
-      }
-    }
+    configOpt?.getMap(key)
 
   @Suppress("SameParameterValue")
   private fun booleanFromConfigForKey(configOpt: ReadableMap?, key: String): Boolean? =
-    configOpt?.let {
-      return try {
-        it.getBoolean(key)
-      } catch (e: Exception) {
-        null
-      }
+    try {
+      configOpt?.getBoolean(key)
+    } catch (e: Exception) {
+      null
     }
 
   @Suppress("SameParameterValue")
-  private fun longFromConfigForKey(configOpt: ReadableMap?, key: String): Long = configOpt?.let {
-    return (try {
-      it.getDouble(key)
+  private fun longFromConfigForKey(configOpt: ReadableMap?, key: String): Long =
+    try {
+      configOpt?.getDouble(key)?.toLong() ?: defaultRequestTimeoutMilliseconds
     } catch (e: Exception) {
       defaultRequestTimeoutMilliseconds
-    }).toLong()
-  } ?: run {
-    defaultRequestTimeoutMilliseconds.toLong()
-  }
+    }
 
   private fun optMethodFromVerb(verb: String): HttpMethod? =
-    if ("get".equals(verb, ignoreCase = true)) HttpMethod.Get else if ("post".equals(
-        verb, ignoreCase = true
-      )
-    ) HttpMethod.Post else null
+    when (verb.lowercase()) {
+      "get" -> HttpMethod.Get
+      "post" -> HttpMethod.Post
+      else -> null
+    }
 
   private fun optBodyFromMethodAndConfig(
     method: HttpMethod, configOpt: ReadableMap?
   ): FormDataContent? {
-    if (method == HttpMethod.Post) {
-      readableMapFromConfigForKey(configOpt, "body")?.let {
-        val formDataContent = FormDataContent(Parameters.build {
-          for ((parametersName, parameterValue) in it.entryIterator) {
-            if (parameterValue is String) {
-              append(parametersName, parameterValue)
-            }
-          }
-        })
-        return if (!formDataContent.formData.isEmpty()) formDataContent else null
+    if (method != HttpMethod.Post) return null
+
+    val bodyMap = readableMapFromConfigForKey(configOpt, "body") ?: return null
+
+    val formDataContent = FormDataContent(Parameters.build {
+      bodyMap.entryIterator.forEach { (parametersName, parameterValue) ->
+        if (parameterValue is String) {
+          append(parametersName, parameterValue)
+        }
       }
-    }
-    return null
+    })
+
+    return if (formDataContent.formData.isEmpty()) null else formDataContent
   }
 
   private fun headersFromConfig(configOpt: ReadableMap?): StringValues {
-    val headers = StringValuesBuilderImpl()
-    readableMapFromConfigForKey(configOpt, "headers")?.let {
-      for ((headerName, headerValue) in it.entryIterator) {
-        if (headerValue is String) {
-          headers[headerName] = headerValue
+    val headers = ParametersBuilder()
+    readableMapFromConfigForKey(configOpt, "headers")?.let { map ->
+      val iterator = map.keySetIterator()
+      while (iterator.hasNextKey()) {
+        val key = iterator.nextKey()
+        map.getString(key)?.let { value ->
+          headers.append(key, value)
         }
       }
     }
@@ -287,16 +266,16 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
 
     val responseHeaders = WritableNativeMap()
     response.headers.forEach { headerName: String, headerValues: List<String> ->
-      val joinedValues = headerValues.joinToString()
-      responseHeaders.putString(headerName.lowercase(), joinedValues)
+      responseHeaders.putString(headerName.lowercase(), headerValues.joinToString())
     }
 
     val isSuccessHttpStatusCode = responseStatusCode < 400
-    val responseMap = WritableNativeMap()
-    responseMap.putString("type", if (isSuccessHttpStatusCode) "success" else "failure")
-    responseMap.putInt(if (isSuccessHttpStatusCode) "status" else "code", responseStatusCode)
-    responseMap.putString(if (isSuccessHttpStatusCode) "body" else "message", responseBody)
-    responseMap.putMap("headers", responseHeaders)
+    val responseMap = WritableNativeMap().apply {
+      putString("type", if (isSuccessHttpStatusCode) "success" else "failure")
+      putInt(if (isSuccessHttpStatusCode) "status" else "code", responseStatusCode)
+      putString(if (isSuccessHttpStatusCode) "body" else "message", responseBody)
+      putMap("headers", responseHeaders)
+    }
 
     runningRequestJobs.remove(requestId)
 
@@ -308,13 +287,11 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
   ) {
     runningRequestJobs.remove(requestId)
 
-    var message = e.message ?: "Unable to send network request, unknown error"
-    if (e is HttpRequestTimeoutException || e is ConnectTimeoutException || e is SocketTimeoutException) {
-      message = "Timeout"
-    } else if (e is CancellationException) {
-      message = "Cancelled"
-    } else if (e is SSLHandshakeException) {
-      message = "TLS Failure"
+    val message = when (e) {
+      is HttpRequestTimeoutException, is ConnectTimeoutException, is SocketTimeoutException -> "Timeout"
+      is CancellationException -> "Cancelled"
+      is SSLHandshakeException -> "TLS Failure"
+      else -> e.message ?: "Unable to send network request, unknown error"
     }
 
     handleNonHttpFailure(message, promise)
@@ -322,10 +299,12 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
 
   private fun handleNonHttpFailure(message: String, promise: Promise) {
     val failureHttpResponse = WritableNativeMap()
-    failureHttpResponse.putString("type", "failure")
-    failureHttpResponse.putInt("code", 900)
-    failureHttpResponse.putString("message", message)
-    failureHttpResponse.putMap("headers", WritableNativeMap())
+    failureHttpResponse.apply {
+      putString("type", "failure")
+      putInt("code", 900)
+      putString("message", message)
+      putMap("headers", WritableNativeMap())
+    }
     promise.resolve(failureHttpResponse)
   }
 
