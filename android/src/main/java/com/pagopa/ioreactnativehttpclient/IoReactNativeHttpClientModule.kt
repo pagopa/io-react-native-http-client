@@ -100,7 +100,7 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
         val domainHost = domainUrl.host
         val cookie = Cookie(name, value, path = path, domain = domainHost)
         inMemoryCookieStorage.addCookie(domain, cookie)
-      } catch (_: Exception) {        
+      } catch (_: Exception) {
       }
     }
   }
@@ -115,7 +115,7 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
             Cookie(it.name, it.value, path = it.path, domain = it.domain, expires = GMTDate(0))
           inMemoryCookieStorage.addCookie(domain, expiredCookie)
         }
-      } catch (_: Exception) {        
+      } catch (_: Exception) {
       }
     }
   }
