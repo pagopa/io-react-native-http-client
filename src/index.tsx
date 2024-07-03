@@ -48,6 +48,7 @@ export const deallocate = (): void => IoReactNativeHttpClient.deallocate();
 
 export const NonHttpErrorCode = 900;
 export const CancelledMessage = 'Cancelled';
+export const SerializationFailure = 'Serialization Failure';
 export const TimeoutMessage = 'Timeout';
 export const TLSMessage = 'TLS Failure';
 
@@ -65,6 +66,13 @@ export const isCancelledFailure = (
   isFailureResponse(response) &&
   response.code === NonHttpErrorCode &&
   response.message === CancelledMessage;
+
+export const isSerializationFailure = (
+  response: HttpClientResponse
+): response is HttpClientFailureResponse =>
+  isFailureResponse(response) &&
+  response.code === NonHttpErrorCode &&
+  response.message === SerializationFailure;
 
 export const isTimeoutFailure = (
   response: HttpClientResponse

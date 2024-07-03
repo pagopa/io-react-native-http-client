@@ -31,6 +31,7 @@ import io.ktor.http.Url
 import io.ktor.util.StringValues
 import io.ktor.util.StringValuesBuilderImpl
 import io.ktor.util.date.GMTDate
+import io.ktor.utils.io.charsets.MalformedInputException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -294,6 +295,7 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
       is HttpRequestTimeoutException, is ConnectTimeoutException, is SocketTimeoutException -> "Timeout"
       is CancellationException -> "Cancelled"
       is SSLHandshakeException -> "TLS Failure"
+      is MalformedInputException -> "Serialization Failure"
       else -> e.message ?: "Unable to send network request, unknown error"
     }
 
