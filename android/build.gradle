@@ -90,7 +90,7 @@ dependencies {
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-  implementation "io.ktor:ktor-client-core:2.3.11"
-  implementation "io.ktor:ktor-client-android:2.3.11"
+  implementation "io.ktor:ktor-client-core:2.3.12"
+  implementation "io.ktor:ktor-client-android:2.3.12"
 }
 

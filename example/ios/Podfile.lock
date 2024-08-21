@@ -76,7 +76,7 @@ PODS:
   - hermes-engine/Pre-built (0.72.14)
   - libevent (2.1.12)
   - OpenSSL-Universal (1.1.1100)
-  - pagopa-io-react-native-http-client (0.1.3):
+  - pagopa-io-react-native-http-client (1.0.4):
     - Alamofire (~> 5.9.1)
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
@@ -681,7 +681,7 @@ SPEC CHECKSUMS:
   hermes-engine: b213bace5f31766ad1434d2d9b2cbf04cf92a2b6
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
-  pagopa-io-react-native-http-client: 57378cae80bd31df89b08eeda71ae50e0e0066fa
+  pagopa-io-react-native-http-client: cd756d9e56b783a8bf1429fc9ae65b32e75be929
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: 264adaca1d8b1a9c078761891898d4142df05313
   RCTTypeSafety: 279a89da7058a69899778a127be73fab38b84499

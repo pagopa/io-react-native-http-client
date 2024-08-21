@@ -38,12 +38,11 @@ class IoReactNativeHttpClient: NSObject {
         
         runningRequests.updateValue(request, forKey: requestId)
         
-        request.responseString { response in
+        request.response { response in
             self.runningRequests.removeValue(forKey: requestId)
             let isCancelled = request.isCancelled
             self.handleResponse(response, cancelled: isCancelled, resolve: resolve)
         }
-        
     }
     
     @objc(setCookieForDomain:path:name:value:)
@@ -141,7 +140,8 @@ class IoReactNativeHttpClient: NSObject {
         return (configOpt?["requestId"] as? String) ?? NSUUID().uuidString
     }
     
-    func handleResponse(_ response: AFDataResponse<String>, cancelled: Bool, resolve: @escaping RCTPromiseResolveBlock) -> Void {
+    func handleResponse(_ response: AFDataResponse<Data?>, cancelled: Bool, resolve: @escaping RCTPromiseResolveBlock) -> Void {
+        
         let result = response.result
         if case .failure = result {
             if (cancelled) {
@@ -164,7 +164,19 @@ class IoReactNativeHttpClient: NSObject {
             handleNonHttpFailure("Unable to read 'status code' from network response", resolve: resolve)
             return;
         }
-        let body = response.value ?? ""
+        
+        var body = "";
+        if let data = response.data {
+            if (data.count > 0) {
+                if let bodyOpt = String(data: data, encoding: .utf8) {
+                    body = bodyOpt
+                } else {
+                    handleNonHttpFailure("Serialization Failure", resolve: resolve)
+                    return;
+                }
+            }
+        }
+        
         let headers = toLowerCaseHeaders(response.response?.headers)
         
         let httpResponse: [String: Any] = statusCode < 400 ? [
