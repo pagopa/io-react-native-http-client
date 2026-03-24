@@ -99,12 +99,12 @@ jobs:
 
       - name: Build example for Android
         env:
-          JAVA_OPTS: "-XX:MaxHeapSize=6g"
+          JAVA_OPTS: '-XX:MaxHeapSize=6g'
         run: |
           yarn turbo run build:android --cache-dir="${{ env.TURBO_CACHE_DIR }}"
 
   build-ios:
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       TURBO_CACHE_DIR: .turbo/ios
     steps:
@@ -114,12 +114,19 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          working-directory: example
+
+      - name: Check Xcode version
+        run: xcodebuild -version
+
       - name: Install cocoapods
         run: |
-          cd example/ios
-          pod install
-        env:
-          NO_FLIPPER: 1
+          cd example
+          bundle exec pod install --project-directory=ios
 
       - name: Build example for iOS
         run: |
