@@ -35,6 +35,20 @@ target 'IoReactNativeHttpClientExample' do
       :mac_catalyst_enabled => false
     )
 
+    # Enforce minimum iOS deployment target for all pods to prevent the Swift
+    # compiler from auto-linking swiftCompatibility56, which was removed in
+    # Xcode 26. Any pod with a deployment target below 15.1 would cause a
+    # linker failure because iOS 15.1+ ships with native Swift 5.6 runtime
+    # support and no longer needs the compatibility shim.
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        current = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
+        if !current.nil? && current.to_f < 15.1
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+        end
+      end
+    end
+
     # RCT-Folly 2024.11.18.00 shipped with RN 0.81 does not include folly/coro headers,
     # so force-disable coroutine paths to avoid including missing headers.
     installer.pods_project.targets.each do |target|
