@@ -109,14 +109,6 @@ The `package.json` file contains various scripts for common tasks:
 - `yarn example android`: run the example app on Android.
 - `yarn example ios`: run the example app on iOS.
 
-#### iOS CI build script (`build:ios`)
-
-The `build:ios` script in `example/package.json` is used exclusively by CI to validate the iOS build. It passes `EXCLUDED_ARCHS=x86_64` to xcodebuild to restrict the simulator build to `arm64` only.
-
-This is intentional: Xcode 26 (required by macOS 26) dropped the `swiftCompatibility56` shim for x86_64 simulator, causing a linker failure. Since macOS 26 requires Apple Silicon, x86_64 simulator support is irrelevant on any machine capable of running Xcode 26.
-
-For local simulator development, use `yarn example ios` or Xcode directly — do not rely on the `build:ios` script.
-
 ### Sending a pull request
 
 > **Working on your first pull request?** You can learn how from this _free_ series: [How to Contribute to an Open Source Project on GitHub](https://app.egghead.io/playlists/how-to-contribute-to-an-open-source-project-on-github).

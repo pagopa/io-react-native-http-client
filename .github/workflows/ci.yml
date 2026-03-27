@@ -124,6 +124,11 @@ jobs:
       - name: Check Xcode version
         run: xcodebuild -version
 
+      - name: Select Xcode 26.3
+        run: |
+          sudo xcode-select -s /Applications/Xcode_26.3.app
+          xcodebuild -version
+
       - name: Install cocoapods
         run: |
           cd example
