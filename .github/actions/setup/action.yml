@@ -14,7 +14,8 @@ runs:
       uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
       with:
         path: |
-          **/node_modules
+          node_modules
+          example/node_modules
           .yarn/install-state.gz
         key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}-${{ hashFiles('**/package.json', '!node_modules/**') }}
         restore-keys: |
