@@ -106,6 +106,7 @@ jobs:
   build-ios:
     runs-on: macos-26
     env:
+      XCODE_VERSION: 26
       TURBO_CACHE_DIR: .turbo/ios
     steps:
       - name: Checkout
