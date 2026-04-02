@@ -120,7 +120,7 @@ jobs:
     runs-on: macos-26
 
     env:
-      XCODE_VERSION: 26
+      XCODE_VERSION: "26.3"
       TURBO_CACHE_DIR: .turbo/ios
       RCT_USE_RN_DEP: 1
       RCT_USE_PREBUILT_RNCORE: 1
@@ -153,6 +153,29 @@ jobs:
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
         with:
           xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: iOS preflight diagnostics
+        if: env.turbo_cache_hit != 1
+        run: |
+          set -euo pipefail
+
+          echo "=== xcodebuild -version ==="
+          xcodebuild -version
+
+          echo "=== xcode-select -p ==="
+          xcode-select -p
+
+          echo "=== MD_APPLE_SDK_ROOT ==="
+          echo "${MD_APPLE_SDK_ROOT:-<not set>}"
+
+          echo "=== xcodebuild -showsdks ==="
+          xcodebuild -showsdks
+
+          echo "=== xcrun simctl list runtimes ==="
+          xcrun simctl list runtimes
+
+          echo "=== xcrun simctl list devices available ==="
+          xcrun simctl list devices available
 
       - name: Install cocoapods
         if: env.turbo_cache_hit != 1 && steps.cocoapods-cache.outputs.cache-hit != 'true'
