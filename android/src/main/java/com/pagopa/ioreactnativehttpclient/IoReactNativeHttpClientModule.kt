@@ -2,8 +2,6 @@ package com.pagopa.ioreactnativehttpclient
 
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableNativeMap
 import io.ktor.client.HttpClient
@@ -42,7 +40,7 @@ import java.util.concurrent.CancellationException
 import javax.net.ssl.SSLHandshakeException
 
 class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
-  ReactContextBaseJavaModule(reactContext) {
+  NativeIoReactNativeHttpClientSpec(reactContext) {
 
   override fun getName(): String = NAME
 
@@ -58,8 +56,7 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
 
   private var defaultRequestTimeoutMilliseconds = 60_000L
 
-  @ReactMethod
-  fun nativeRequest(config: ReadableMap, promise: Promise) {
+  override fun nativeRequest(config: ReadableMap, promise: Promise) {
     val verb = stringFromConfigForKey(config, "verb")
       ?: return handleNonHttpFailure("Bad configuration, missing 'verb'", promise)
 
@@ -93,8 +90,7 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  @ReactMethod
-  fun setCookieForDomain(domain: String, path: String, name: String, value: String) {
+  override fun setCookieForDomain(domain: String, path: String, name: String, value: String) {
     coroutineScope.launch {
       try {
         val domainUrl = Url(domain)
@@ -106,8 +102,7 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  @ReactMethod
-  fun removeAllCookiesForDomain(domain: String) {
+  override fun removeAllCookiesForDomain(domain: String) {
     coroutineScope.launch {
       try {
         val cookiesForDomain = inMemoryCookieStorage.get(Url(domain))
@@ -121,22 +116,19 @@ class IoReactNativeHttpClientModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  @ReactMethod
-  fun cancelRequestWithId(requestId: String) {
+  override fun cancelRequestWithId(requestId: String) {
     runningRequestJobs[requestId]?.let { job ->
       job.cancel()
       runningRequestJobs.remove(requestId)
     }
   }
 
-  @ReactMethod
-  fun cancelAllRunningRequests() {
+  override fun cancelAllRunningRequests() {
     runningRequestJobs.values.forEach { it.cancel() }
     runningRequestJobs.clear()
   }
 
-  @ReactMethod
-  fun deallocate() {
+  override fun deallocate() {
     cancelAllRunningRequests()
 
     followsRedirectClient?.close()

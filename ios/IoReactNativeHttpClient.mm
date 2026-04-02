@@ -1,24 +1,68 @@
-#import <React/RCTBridgeModule.h>
+#import "IoReactNativeHttpClient.h"
+#import "IoReactNativeHttpClient-Swift.h"
 
-@interface RCT_EXTERN_MODULE(IoReactNativeHttpClient, NSObject)
+@interface IoReactNativeHttpClient ()
 
-RCT_EXTERN_METHOD(nativeRequest:(NSDictionary *)config
-                  withResolver:(RCTPromiseResolveBlock)resolve
-                  withRejecter:(RCTPromiseRejectBlock)reject)
+@property(nonatomic, strong) IoReactNativeHttpClientCore *implementation;
 
-RCT_EXTERN_METHOD(setCookieForDomain:(NSString *)domain
-                  path:(NSString *)path
-                  name:(NSString *)name
-                  value:(NSString *)value)
+@end
 
-RCT_EXTERN_METHOD(removeAllCookiesForDomain:(NSString *)domain)
-RCT_EXTERN_METHOD(cancelRequestWithId:(NSString *)requestId)
-RCT_EXTERN_METHOD(cancelAllRunningRequests)
-RCT_EXTERN_METHOD(deallocate)
+@implementation IoReactNativeHttpClient
 
-+ (BOOL)requiresMainQueueSetup
+- (instancetype)init
 {
-  return NO;
+    self = [super init];
+    if (self) {
+        _implementation = [IoReactNativeHttpClientCore new];
+    }
+
+    return self;
+}
+
+- (void)nativeRequest:(NSDictionary *)config
+               resolve:(RCTPromiseResolveBlock)resolve
+                reject:(RCTPromiseRejectBlock)reject
+{
+    [self.implementation nativeRequest:config withResolver:resolve withRejecter:reject];
+}
+
+- (void)setCookieForDomain:(NSString *)domain
+                      path:(NSString *)path
+                      name:(NSString *)name
+                     value:(NSString *)value
+{
+    [self.implementation setCookieForDomain:domain path:path name:name value:value];
+}
+
+- (void)removeAllCookiesForDomain:(NSString *)domain
+{
+    [self.implementation removeAllCookiesForDomain:domain];
+}
+
+- (void)cancelRequestWithId:(NSString *)requestId
+{
+    [self.implementation cancelRequestWithId:requestId];
+}
+
+- (void)cancelAllRunningRequests
+{
+    [self.implementation cancelAllRunningRequests];
+}
+
+- (void)deallocate
+{
+    [self.implementation deallocate];
+}
+
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
+        (const facebook::react::ObjCTurboModule::InitParams &)params
+{
+    return std::make_shared<facebook::react::NativeIoReactNativeHttpClientSpecJSI>(params);
+}
+
++ (NSString *)moduleName
+{
+    return @"IoReactNativeHttpClient";
 }
 
 @end

@@ -86,7 +86,11 @@ export default function App() {
       </TouchableOpacity>
       <Text numberOfLines={7} style={styles.textWithMargin}>
         {clientResponse
-          ? `${clientResponse.type === 'failure' ? clientResponse.message : clientResponse.status}`
+          ? `${
+              clientResponse.type === 'failure'
+                ? clientResponse.message
+                : clientResponse.status
+            }`
           : 'Null'}
       </Text>
     </View>
