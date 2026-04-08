@@ -148,7 +148,11 @@ public class IoReactNativeHttpClientCore: NSObject {
                 handleNonHttpFailure("Cancelled", resolve: resolve)
             } else if let error = response.error {
                 if (error.isSessionTaskError) {
+                  if let urlError = error.underlyingError as? URLError, urlError.code == .timedOut {
                     handleNonHttpFailure("Timeout", resolve: resolve)
+                  } else {
+                    handleNonHttpFailure(error.localizedDescription, resolve: resolve)
+                  }
                 } else if (error.isServerTrustEvaluationError) {
                     handleNonHttpFailure("TLS Failure", resolve: resolve)
                 } else {

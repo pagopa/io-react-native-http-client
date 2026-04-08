@@ -68,6 +68,5 @@ dependencies {
   implementation "com.facebook.react:react-android"
   implementation "io.ktor:ktor-client-core:${getExtOrDefault('ktorVersion')}"
   implementation "io.ktor:ktor-client-android:${getExtOrDefault('ktorVersion')}"
-  implementation "io.ktor:ktor-network:${getExtOrDefault('ktorVersion')}"
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${getExtOrDefault('coroutinesVersion')}"
 }
