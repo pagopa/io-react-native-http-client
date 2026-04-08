@@ -1,12 +1,13 @@
 import Alamofire
+import React
 
-@objc(IoReactNativeHttpClient)
-class IoReactNativeHttpClient: NSObject {
+@objc(IoReactNativeHttpClientCore)
+public class IoReactNativeHttpClientCore: NSObject {
 
     var runningRequests:[String:Request] = [:]
-    
+
     @objc(nativeRequest:withResolver:withRejecter:)
-    func nativeRequest(config: [String: Any], resolve: @escaping RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) -> Void {
+    public func nativeRequest(config: [String: Any], resolve: @escaping RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) -> Void {
         guard let verb = config["verb"] as? String else {
           handleNonHttpFailure("Bad configuration, missing 'verb'", resolve: resolve)
           return;
@@ -35,18 +36,18 @@ class IoReactNativeHttpClient: NSObject {
                    headers: headers,
                    requestModifier: { $0.timeoutInterval = timeoutSeconds })
             .redirect(using: redirector)
-        
+
         runningRequests.updateValue(request, forKey: requestId)
-        
+
         request.response { response in
             self.runningRequests.removeValue(forKey: requestId)
             let isCancelled = request.isCancelled
             self.handleResponse(response, cancelled: isCancelled, resolve: resolve)
         }
     }
-    
+
     @objc(setCookieForDomain:path:name:value:)
-    func setCookieForDomain(_ domain: String, path: String, name: String, value: String) -> Void {
+    public func setCookieForDomain(_ domain: String, path: String, name: String, value: String) -> Void {
         let cookieProperties: [HTTPCookiePropertyKey:HTTPCookiePropertyKey] = [
             HTTPCookiePropertyKey.originURL: HTTPCookiePropertyKey(domain),
             HTTPCookiePropertyKey.path: HTTPCookiePropertyKey(path),
@@ -57,9 +58,9 @@ class IoReactNativeHttpClient: NSObject {
             AF.session.configuration.httpCookieStorage?.setCookie(domainCookie)
         }
     }
-    
+
     @objc(removeAllCookiesForDomain:)
-    func removeAllCookiesForDomain(_ domain: String) -> Void {
+    public func removeAllCookiesForDomain(_ domain: String) -> Void {
         if let domainURL = URL(string: domain) {
             if let cookieStorage = AF.session.configuration.httpCookieStorage {
                 if let domainCookies = cookieStorage.cookies(for: domainURL) {
@@ -70,28 +71,28 @@ class IoReactNativeHttpClient: NSObject {
             }
         }
     }
-    
+
     @objc(cancelRequestWithId:)
-    func cancelRequestWithId(_ requestId: String) {
+    public func cancelRequestWithId(_ requestId: String) {
         if let request = runningRequests[requestId] {
             request.cancel()
             runningRequests.removeValue(forKey: requestId)
         }
     }
-    
+
     @objc(cancelAllRunningRequests)
-    func cancelAllRunningRequests() -> Void {
+    public func cancelAllRunningRequests() -> Void {
         runningRequests.forEach { runningRequest in
             runningRequest.value.cancel()
         }
         runningRequests.removeAll()
     }
-    
+
     @objc(deallocate)
-    func deallocate() -> Void {
+    public func deallocate() -> Void {
         cancelAllRunningRequests()
     }
-    
+
     func optMethodFromVerb(_ verb: String) -> HTTPMethod? {
         return ("get".caseInsensitiveCompare(verb) == .orderedSame)
             ? HTTPMethod.get
@@ -99,15 +100,14 @@ class IoReactNativeHttpClient: NSObject {
             ? HTTPMethod.post
             : nil
     }
-    
+
     func optParametersFromMethod(_ method: HTTPMethod, andConfig configOpt: [String:Any]?) -> [String:String]? {
         if (method == HTTPMethod.post) {
             return configOpt?["body"] as? [String:String]
         }
         return nil
     }
-    
-    
+
     func headersFromConfig(_ configOpt: [String: Any]?) -> HTTPHeaders {
         var headers: HTTPHeaders = []
         guard let config = configOpt else {
@@ -123,32 +123,36 @@ class IoReactNativeHttpClient: NSObject {
         }
         return headers
     }
-    
+
     func redirectorFromConfig(_ configOpt: [String: Any]?) -> Redirector {
         let followRedirects = (configOpt?["followRedirects"] as? Bool) ?? true
         return Redirector(behavior: followRedirects ? Redirector.Behavior.follow : Redirector.Behavior.doNotFollow)
     }
-    
+
     func timeoutSecondsFromConfig(_ configOpt: [String: Any]?) -> TimeInterval {
         if let timeoutMilliseconds = configOpt?["timeoutMilliseconds"] as? TimeInterval {
             return timeoutMilliseconds / 1000
         }
         return 60
     }
-    
+
     func requestIdFromConfigOrRandom(_ configOpt: [String: Any]?) -> String {
         return (configOpt?["requestId"] as? String) ?? NSUUID().uuidString
     }
-    
+
     func handleResponse(_ response: AFDataResponse<Data?>, cancelled: Bool, resolve: @escaping RCTPromiseResolveBlock) -> Void {
-        
+
         let result = response.result
         if case .failure = result {
             if (cancelled) {
                 handleNonHttpFailure("Cancelled", resolve: resolve)
             } else if let error = response.error {
                 if (error.isSessionTaskError) {
+                  if let urlError = error.underlyingError as? URLError, urlError.code == .timedOut {
                     handleNonHttpFailure("Timeout", resolve: resolve)
+                  } else {
+                    handleNonHttpFailure(error.localizedDescription, resolve: resolve)
+                  }
                 } else if (error.isServerTrustEvaluationError) {
                     handleNonHttpFailure("TLS Failure", resolve: resolve)
                 } else {
@@ -159,12 +163,12 @@ class IoReactNativeHttpClient: NSObject {
             }
             return
         }
-        
+
         guard let statusCode = response.response?.statusCode else {
             handleNonHttpFailure("Unable to read 'status code' from network response", resolve: resolve)
             return;
         }
-        
+
         var body = "";
         if let data = response.data {
             if (data.count > 0) {
@@ -176,9 +180,9 @@ class IoReactNativeHttpClient: NSObject {
                 }
             }
         }
-        
+
         let headers = toLowerCaseHeaders(response.response?.headers)
-        
+
         let httpResponse: [String: Any] = statusCode < 400 ? [
             "type": "success",
             "status": statusCode,
@@ -192,7 +196,7 @@ class IoReactNativeHttpClient: NSObject {
         ]
         resolve(httpResponse)
     }
-    
+
     func toLowerCaseHeaders(_ headersOpt: HTTPHeaders?) -> [String: String] {
         if var headersDictionary = headersOpt?.dictionary {
             let caseSensitiveKeys = headersDictionary.keys
@@ -203,7 +207,7 @@ class IoReactNativeHttpClient: NSObject {
         }
         return [:]
     }
-    
+
     func handleNonHttpFailure(_ message: String, resolve: @escaping RCTPromiseResolveBlock) -> Void {
         let httpResponse: [String: Any] = [
             "type": "failure",
@@ -213,5 +217,5 @@ class IoReactNativeHttpClient: NSObject {
         ]
         resolve(httpResponse)
     }
-   
+
 }
