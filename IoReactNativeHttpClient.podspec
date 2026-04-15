@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
 
   s.platforms    = { :ios => min_ios_version_supported }
   s.source       = { :git => "https://github.com/pagopa/io-react-native-http-client.git", :tag => "#{s.version}" }
-  s.dependency "Alamofire", '~> 5.9.1'
+  s.dependency "Alamofire", '~> 5.11'
 
   s.source_files = "ios/**/*.{h,m,mm,swift,cpp}"
   s.private_header_files = "ios/**/*.h"
