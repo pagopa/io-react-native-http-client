@@ -1,5 +1,5 @@
 PODS:
-  - Alamofire (5.9.1)
+  - Alamofire (5.11.2)
   - boost (1.84.0)
   - DoubleConversion (1.1.6)
   - fast_float (8.0.0)
@@ -10,7 +10,7 @@ PODS:
     - hermes-engine/Pre-built (= 0.14.0)
   - hermes-engine/Pre-built (0.14.0)
   - IoReactNativeHttpClient (1.0.5):
-    - Alamofire (~> 5.9.1)
+    - Alamofire (~> 5.11)
     - boost
     - DoubleConversion
     - fast_float
@@ -2729,7 +2729,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  Alamofire: f36a35757af4587d8e4f4bfa223ad10be2422b8c
+  Alamofire: 400275dd1c6d87d95a041861d2a59da4b520a203
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
@@ -2737,7 +2737,7 @@ SPEC CHECKSUMS:
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: 436f6b8b4a8562b3497aa95f74bb6ec37ed4dc52
-  IoReactNativeHttpClient: c7b8fd5ed78fa9c8f88a6cb8a2d53f32bfe8e964
+  IoReactNativeHttpClient: e50ee3cd797f35a4362ea3dd32f47764084e35a4
   RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
   RCTDeprecation: 2b70c6e3abe00396cefd8913efbf6a2db01a2b36
   RCTRequired: f3540eee8094231581d40c5c6d41b0f170237a81
